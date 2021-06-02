@@ -18,11 +18,11 @@ class _AddCategoryState extends State<AddCategory> {
 
   FocusNode nameNode = FocusNode();
   FocusNode desNode = FocusNode();
-  File _selectedImage;
+  PickedFile _selectedImage;
   bool pressAddCategory = false;
 
   Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       // File cropped = await ImageCropper.cropImage(
       //     sourcePath: selected.path,
@@ -42,7 +42,6 @@ class _AddCategoryState extends State<AddCategory> {
     if (pressAddCategory == false) {
       return Scaffold(
         key: scaffoldKey,
-        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           title: Text("Add Category"),
           centerTitle: true,
@@ -263,7 +262,7 @@ class _AddCategoryState extends State<AddCategory> {
             width: 125,
             height: 120,
             child: CircleAvatar(
-              backgroundImage: FileImage(_selectedImage),
+              backgroundImage: NetworkImage(_selectedImage.path),
               child: Icon(
                 Icons.camera,
               ),

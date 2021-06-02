@@ -19,7 +19,8 @@ class _CropImageState extends State<CropImage> {
   bool wait = false;
 
   Future<void> pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    // ignore: invalid_use_of_visible_for_testing_member
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       File cropped = await cropImage(selected);
       setState(() {
@@ -32,18 +33,14 @@ class _CropImageState extends State<CropImage> {
   }
 
   Future saveImageToFs(String email, File cropped, String path) async {
-    StorageReference reference = FirebaseStorage.instance.ref().child(path);
-    StorageUploadTask uploadTask = reference.putData(cropped.readAsBytesSync());
-    String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+    Reference reference = FirebaseStorage.instance.ref().child(path);
+    UploadTask uploadTask = reference.putData(await cropped.readAsBytes());
+    String url =
+        await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
   }
 
-  Future<File> cropImage(File selected) async {
-    File cropped = await ImageCropper.cropImage(
-        sourcePath: selected.path,
-        aspectRatio: CropAspectRatio(ratioX: 0.1, ratioY: 0.1),
-        compressQuality: 100,
-        maxWidth: 200,
-        maxHeight: 200);
+  Future<File> cropImage(PickedFile selected) async {
+    File cropped = await ImageCropper.cropImage(sourcePath: selected.path);
     this.setState(() {
       _selectedImage = cropped;
     });
@@ -127,11 +124,12 @@ class _CropImageState extends State<CropImage> {
   Future saveDefaultImageToFs(String email) async {
     Uint8List file =
         (await rootBundle.load("assets/images/user.jpg")).buffer.asUint8List();
-    StorageReference reference = FirebaseStorage.instance
+    Reference reference = FirebaseStorage.instance
         .ref()
         .child("users/" + email + "/" + "user.png");
-    StorageUploadTask uploadTask = reference.putData(file);
-    String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+    UploadTask uploadTask = reference.putData(file);
+    String url =
+        await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
   }
 
   Widget getImageWidget() {

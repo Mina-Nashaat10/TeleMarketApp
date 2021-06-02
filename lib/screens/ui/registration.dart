@@ -33,7 +33,6 @@ class _RegistrationState extends State<Registeration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: true,
         key: scaffoldKey,
         backgroundColor: Colors.lightBlue[300],
         body: Container(

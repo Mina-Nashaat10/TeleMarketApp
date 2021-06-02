@@ -24,7 +24,6 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: scaffoldKey,
-        resizeToAvoidBottomPadding: true,
         backgroundColor: Colors.lightBlue[300],
         body: SafeArea(
           child: Container(

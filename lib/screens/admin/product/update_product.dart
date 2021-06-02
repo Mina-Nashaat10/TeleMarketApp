@@ -31,7 +31,6 @@ class _UpdateProductState extends State<UpdateProduct> {
   FocusNode detailNode = FocusNode();
   FocusNode descriptionNode = FocusNode();
 
-
   bool pressAddProduct = false;
   Product product;
   @override
@@ -142,7 +141,7 @@ class _UpdateProductState extends State<UpdateProduct> {
                         if (formKey.currentState.validate()) {
                           if (selectCategory == null) {
                             showSnackBar("Please Choose Category of Product");
-                          }  else {
+                          } else {
                             setState(() {
                               pressAddProduct = true;
                             });
@@ -150,20 +149,20 @@ class _UpdateProductState extends State<UpdateProduct> {
                             newProduct.id = product.id;
                             newProduct.title = nameController.text.toString();
                             newProduct.category = selectCategory;
-                            newProduct.description = descriptionController.text.toString();
+                            newProduct.description =
+                                descriptionController.text.toString();
                             newProduct.price = priceController.text;
-                            newProduct.details = detailsController.text.toString();
+                            newProduct.details =
+                                detailsController.text.toString();
                             Admin admin = Admin();
-                            if(selectedImage == null)
-                              {
-                                newProduct.imagePath = product.imagePath;
-                                admin.updateProduct(newProduct);
-                              }
-                            else
-                              {
-                                admin.updateProduct(newProduct,selectedImage);
-                              }
-                            Navigator.pushNamed(context, "/adminhome",arguments: 2);
+                            if (selectedImage == null) {
+                              newProduct.imagePath = product.imagePath;
+                              admin.updateProduct(newProduct);
+                            } else {
+                              admin.updateProduct(newProduct, selectedImage);
+                            }
+                            Navigator.pushNamed(context, "/adminhome",
+                                arguments: 2);
                           }
                         }
                       },
@@ -226,7 +225,7 @@ class _UpdateProductState extends State<UpdateProduct> {
         onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(nextNode),
         keyboardType: inputType,
         obscureText: false,
-        maxLines: controller == descriptionController? 4 : 1,
+        maxLines: controller == descriptionController ? 4 : 1,
         validator: (value) {
           if (value.isEmpty) {
             return errorMsg;
@@ -236,6 +235,7 @@ class _UpdateProductState extends State<UpdateProduct> {
       ),
     );
   }
+
   Future<List<String>> getCategories() async {
     List<String> cat = List<String>();
     Categories categories = Categories();
@@ -346,7 +346,7 @@ class _UpdateProductState extends State<UpdateProduct> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       File cropped = await ImageCropper.cropImage(
           sourcePath: selected.path,
@@ -360,5 +360,4 @@ class _UpdateProductState extends State<UpdateProduct> {
       Navigator.of(context).pop();
     }
   }
-
 }

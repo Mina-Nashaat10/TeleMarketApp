@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tele_market/models/person.dart';
 import 'package:tele_market/models/product.dart';
 
@@ -79,7 +80,7 @@ class Admin extends Person {
 
   //Category
   //add Category
-  Future<bool> addCategory(Categories categories, File cropped) async {
+  Future<bool> addCategory(Categories categories, PickedFile cropped) async {
     int count = 0;
     try {
       fireStore.collection("categories").get().then((value) {
@@ -87,12 +88,13 @@ class Admin extends Person {
           count = count + 1;
         });
       });
-      StorageReference reference = FirebaseStorage.instance
+      Reference reference = FirebaseStorage.instance
           .ref()
           .child("Categories/" + categories.name + "/" + "category.png");
-      StorageUploadTask uploadTask =
-          reference.putData(cropped.readAsBytesSync());
-      String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+      UploadTask uploadTask = reference.putData(await cropped.readAsBytes());
+      String url = await (await uploadTask.whenComplete(() => null))
+          .ref
+          .getDownloadURL();
       categories.imgPath = url;
       categories.id = count + 1;
       await fireStore.collection("categories").add(category.toMap(categories));
@@ -103,15 +105,17 @@ class Admin extends Person {
   }
 
   //Update Category
-  Future<bool> updateCategory(Categories categories, [File cropped]) async {
+  Future<bool> updateCategory(Categories categories,
+      [PickedFile cropped]) async {
     try {
       if (cropped != null) {
-        StorageReference reference = FirebaseStorage.instance
+        Reference reference = FirebaseStorage.instance
             .ref()
             .child("Categories/" + categories.name + "/" + "category.png");
-        StorageUploadTask uploadTask =
-            reference.putData(cropped.readAsBytesSync());
-        String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+        UploadTask uploadTask = reference.putData(await cropped.readAsBytes());
+        String url = await (await uploadTask.whenComplete(() => null))
+            .ref
+            .getDownloadURL();
         String id;
         await fireStore
             .collection("categories")
@@ -175,7 +179,7 @@ class Admin extends Person {
 
   //Product
   //Add Product
-  Future<bool> addProduct(Product product, File cropped) async {
+  Future<bool> addProduct(Product product, PickedFile cropped) async {
     int count = 0;
     try {
       await fireStore.collection("products").get().then((value) {
@@ -183,16 +187,16 @@ class Admin extends Person {
           count = count + 1;
         });
       });
-      StorageReference reference = FirebaseStorage.instance.ref().child(
-          "products/" +
-              product.category +
-              "/" +
-              product.title +
-              "/" +
-              "product.png");
-      StorageUploadTask uploadTask =
-          reference.putData(cropped.readAsBytesSync());
-      String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+      Reference reference = FirebaseStorage.instance.ref().child("products/" +
+          product.category +
+          "/" +
+          product.title +
+          "/" +
+          "product.png");
+      UploadTask uploadTask = reference.putData(await cropped.readAsBytes());
+      String url = await (await uploadTask.whenComplete(() => null))
+          .ref
+          .getDownloadURL();
       product.imagePath = url;
       product.id = count + 1;
       await fireStore.collection("products").add(product.toMap(product));
@@ -226,16 +230,16 @@ class Admin extends Person {
   Future<bool> updateProduct(Product newProduct, [File cropped]) async {
     try {
       if (cropped != null) {
-        StorageReference reference = FirebaseStorage.instance.ref().child(
-            "products/" +
-                newProduct.category +
-                "/" +
-                newProduct.title +
-                "/" +
-                "product.png");
-        StorageUploadTask uploadTask =
-            reference.putData(cropped.readAsBytesSync());
-        String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+        Reference reference = FirebaseStorage.instance.ref().child("products/" +
+            newProduct.category +
+            "/" +
+            newProduct.title +
+            "/" +
+            "product.png");
+        UploadTask uploadTask = reference.putData(cropped.readAsBytesSync());
+        String url = await (await uploadTask.whenComplete(() => null))
+            .ref
+            .getDownloadURL();
         newProduct.imagePath = url;
       }
       String documentID;

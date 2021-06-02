@@ -13,7 +13,7 @@ class UpdateCategory extends StatefulWidget {
 class _UpdateCategoryState extends State<UpdateCategory> {
   bool pressAddCategory = false;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  File _selectedImage;
+  PickedFile _selectedImage;
   TextEditingController categoryName = TextEditingController();
   TextEditingController categoryDes = TextEditingController();
   FocusNode nameNode = FocusNode();
@@ -29,7 +29,6 @@ class _UpdateCategoryState extends State<UpdateCategory> {
     if (pressAddCategory == false) {
       return Scaffold(
         key: scaffoldKey,
-        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           title: Text("Update Category"),
           backgroundColor: Colors.black,
@@ -168,7 +167,7 @@ class _UpdateCategoryState extends State<UpdateCategory> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       this.setState(() {
         _selectedImage = selected;
@@ -256,7 +255,7 @@ class _UpdateCategoryState extends State<UpdateCategory> {
             width: 125,
             height: 120,
             child: CircleAvatar(
-              backgroundImage: FileImage(_selectedImage),
+              backgroundImage: NetworkImage(_selectedImage.path),
               child: Icon(
                 Icons.camera,
               ),

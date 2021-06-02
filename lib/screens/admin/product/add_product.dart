@@ -12,7 +12,7 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
-  File selectedImage;
+  PickedFile selectedImage;
   List<String> myCategories = List<String>();
   String selectCategory;
 
@@ -226,7 +226,7 @@ class _AddProductState extends State<AddProduct> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       // File cropped = await ImageCropper.cropImage(
       //     sourcePath: selected.path,
@@ -362,7 +362,7 @@ class _AddProductState extends State<AddProduct> {
             width: 125,
             height: 120,
             child: CircleAvatar(
-              backgroundImage: FileImage(selectedImage),
+              backgroundImage: NetworkImage(selectedImage.path),
               child: Icon(
                 Icons.camera,
               ),

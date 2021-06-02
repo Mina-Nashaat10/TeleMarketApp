@@ -14,8 +14,8 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   Product product;
-  List<String> allCategories = List<String>();
-  List<Product> allProducts = List<Product>();
+  List<String> allCategories = [];
+  List<Product> allProducts = [];
   bool isAvailable = false;
 
   Future<bool> checkInternet() async {
@@ -33,7 +33,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget getProductsByCategory(String category) {
-    List<Product> productsByCategory = List<Product>();
+    List<Product> productsByCategory = [];
     allProducts.forEach((element) {
       if (element.category == category) {
         productsByCategory.add(element);

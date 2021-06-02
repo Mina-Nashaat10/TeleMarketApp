@@ -209,12 +209,13 @@ class _ProfileState extends State<Profile> {
                       ));
                 } else {
                   widget = Scaffold(
-                      backgroundColor: Colors.black,
-                      body: Center(
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.white,
-                        ),
-                      ));
+                    backgroundColor: Colors.black,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                      ),
+                    ),
+                  );
                 }
                 return widget;
               },
@@ -426,9 +427,7 @@ class _ProfileState extends State<Profile> {
       ),
       content: Form(
         key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
           children: [
             Container(
                 width: 300,
@@ -595,19 +594,21 @@ class _ProfileState extends State<Profile> {
   Future<bool> checkInternet() async {
     isAvailable = await Internet.checkInternet();
     if (isAvailable) return true;
+    return false;
   }
 
   Future saveImageToFs(String email, File cropped, String path) async {
-    StorageReference reference = FirebaseStorage.instance.ref().child(path);
-    StorageUploadTask uploadTask = reference.putData(cropped.readAsBytesSync());
-    String url = await (await uploadTask.onComplete).ref.getDownloadURL();
+    Reference reference = FirebaseStorage.instance.ref().child(path);
+    UploadTask uploadTask = reference.putData(cropped.readAsBytesSync());
+    String url =
+        await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
     setState(() {
       selectNewImage = false;
     });
   }
 
   Future<void> pickImage(ImageSource source) async {
-    File selected = await ImagePicker.pickImage(source: source);
+    PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
       File cropped = await ImageCropper.cropImage(
           sourcePath: selected.path,
