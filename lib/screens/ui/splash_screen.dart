@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushNamedAndRemoveUntil(
             mycontext, "/adminhome", (Route<dynamic> route) => false);
       }
-    } on Exception catch (error) {
+    } on Exception {
       Navigator.pushNamedAndRemoveUntil(
           mycontext, "/profilepicture", (Route<dynamic> route) => false);
     }
@@ -63,24 +63,26 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: HexColor("28abb9"),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            child: Text(
-              "Tele Market",
-              style: TextStyle(
-                  color: HexColor("#f1d4d4"),
-                  fontSize: 35,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Lobster"),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: HexColor("28abb9"),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                "Tele Market",
+                style: TextStyle(
+                    color: HexColor("#f1d4d4"),
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Lobster"),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

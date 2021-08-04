@@ -88,59 +88,62 @@ class _AllCategoriesState extends State<AllCategoriesClient> {
   Widget build(BuildContext context) {
     var mediaQueryData = MediaQuery.of(context);
     double screenWidth = mediaQueryData.size.width;
-    return FutureBuilder(
-      future: checkInternet(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return FutureBuilder(
-            builder: (context, snapshot) {
-              Widget widget;
-              if (snapshot.hasData) {
-                widget = Scaffold(
-                  key: scaffoldKey,
-                  backgroundColor: Colors.black,
-                  body: Container(
-                      margin: EdgeInsets.all(10),
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        scrollDirection: Axis.vertical,
-                        children: List.generate(allCategories.length, (index) {
-                          return cardView(screenWidth, allCategories[index]);
-                        }),
-                        crossAxisSpacing: 15,
-                        mainAxisSpacing: 15,
-                      )),
-                );
-              } else {
-                widget = Scaffold(
-                  key: scaffoldKey,
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.black38,
+    return SafeArea(
+      child: FutureBuilder(
+        future: checkInternet(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return FutureBuilder(
+              builder: (context, snapshot) {
+                Widget widget;
+                if (snapshot.hasData) {
+                  widget = Scaffold(
+                    key: scaffoldKey,
+                    backgroundColor: Colors.black,
+                    body: Container(
+                        margin: EdgeInsets.all(10),
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          scrollDirection: Axis.vertical,
+                          children:
+                              List.generate(allCategories.length, (index) {
+                            return cardView(screenWidth, allCategories[index]);
+                          }),
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                        )),
+                  );
+                } else {
+                  widget = Scaffold(
+                    key: scaffoldKey,
+                    backgroundColor: Colors.black,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.black38,
+                      ),
                     ),
-                  ),
-                );
-              }
-              return widget;
-            },
-            future: getCategories(),
-          );
-        } else {
-          return Scaffold(
-            key: scaffoldKey,
-            backgroundColor: Colors.black,
-            body: Container(
-              alignment: Alignment.topCenter,
-              child: Text(
-                "No Internet...",
-                style: TextStyle(
-                    color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                  );
+                }
+                return widget;
+              },
+              future: getCategories(),
+            );
+          } else {
+            return Scaffold(
+              key: scaffoldKey,
+              backgroundColor: Colors.black,
+              body: Container(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  "No Internet...",
+                  style: TextStyle(
+                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                ),
               ),
-            ),
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 

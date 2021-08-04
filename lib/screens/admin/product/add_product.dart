@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tele_market/models/admin.dart';
@@ -35,176 +33,181 @@ class _AddProductState extends State<AddProduct> {
   @override
   Widget build(BuildContext context) {
     if (pressAddProduct == false) {
-      return FutureBuilder(
-        future: getCategories(),
-        builder: (context, snapshot) {
-          Widget widget;
-          if (snapshot.hasData) {
-            widget = Scaffold(
-              key: scaffoldKey,
-              backgroundColor: Colors.black,
-              appBar: AppBar(
-                title: Text("Add Product"),
-                centerTitle: true,
+      return SafeArea(
+        child: FutureBuilder(
+          future: getCategories(),
+          builder: (context, snapshot) {
+            Widget widget;
+            if (snapshot.hasData) {
+              widget = Scaffold(
+                key: scaffoldKey,
                 backgroundColor: Colors.black,
-              ),
-              body: Container(
-                margin: EdgeInsets.all(10),
-                child: ListView(children: [
-                  Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-                          getImageWidget(),
-                          textField(
-                              titleController,
-                              titleNode,
-                              null,
-                              "Enter Product Name",
-                              Icons.drive_file_rename_outline,
-                              TextInputType.text,
-                              "Please Enter Product Name"),
-                          Container(
-                            margin:
-                                EdgeInsets.only(top: 20, right: 20, left: 20),
-                            child: DropdownButton(
-                              isExpanded: true,
-                              style: TextStyle(color: Colors.white),
-                              dropdownColor: Colors.black,
-                              icon: Icon(Icons.arrow_drop_down),
-                              iconSize: 42,
-                              iconEnabledColor: Colors.white,
-                              hint: Text(
-                                "Enter Category Type",
+                appBar: AppBar(
+                  title: Text("Add Product"),
+                  centerTitle: true,
+                  backgroundColor: Colors.black,
+                ),
+                body: Container(
+                  margin: EdgeInsets.all(10),
+                  child: ListView(children: [
+                    Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            getImageWidget(),
+                            textField(
+                                titleController,
+                                titleNode,
+                                null,
+                                "Enter Product Name",
+                                Icons.drive_file_rename_outline,
+                                TextInputType.text,
+                                "Please Enter Product Name"),
+                            Container(
+                              margin:
+                                  EdgeInsets.only(top: 20, right: 20, left: 20),
+                              child: DropdownButton(
+                                isExpanded: true,
                                 style: TextStyle(color: Colors.white),
+                                dropdownColor: Colors.black,
+                                icon: Icon(Icons.arrow_drop_down),
+                                iconSize: 42,
+                                iconEnabledColor: Colors.white,
+                                hint: Text(
+                                  "Enter Category Type",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                items: myCategories.map((e) {
+                                  return DropdownMenuItem(
+                                    child: Text(
+                                      e,
+                                      style: TextStyle(
+                                          fontSize: 28, fontFamily: "Ranga"),
+                                    ),
+                                    value: e,
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectCategory = value;
+                                  });
+                                },
+                                value: selectCategory,
                               ),
-                              items: myCategories.map((e) {
-                                return DropdownMenuItem(
-                                  child: Text(
-                                    e,
-                                    style: TextStyle(
-                                        fontSize: 28, fontFamily: "Ranga"),
-                                  ),
-                                  value: e,
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectCategory = value;
-                                });
-                              },
-                              value: selectCategory,
                             ),
-                          ),
-                          textField(
-                              priceController,
-                              priceNode,
-                              detailNode,
-                              "Enter Product Price",
-                              Icons.attach_money_rounded,
-                              TextInputType.number,
-                              "Please Enter Product Price"),
-                          textField(
-                              detailController,
-                              detailNode,
-                              descriptionNode,
-                              "Detail Of Product",
-                              Icons.details,
-                              TextInputType.text,
-                              "Enter Detail of Product"),
-                          textField(
-                              descriptionController,
-                              descriptionNode,
-                              null,
-                              "Description Of Product",
-                              Icons.description,
-                              TextInputType.text,
-                              "Enter Description of Product"),
-                        ],
-                      )),
-                  Container(
-                      margin: EdgeInsets.only(
-                          top: 10, bottom: 10, right: 70, left: 70),
-                      child: RaisedButton(
-                        padding: EdgeInsets.only(
-                            left: 40, right: 40, top: 10, bottom: 10),
-                        onPressed: () async {
-                          if (formKey.currentState.validate()) {
-                            if (selectCategory == null) {
-                              showSnackBar("Please Choose Category of Product");
-                            } else if (selectedImage == null) {
-                              showSnackBar("Please Choose Image Of Product");
-                            } else {
-                              setState(() {
-                                pressAddProduct = true;
-                              });
-                              Product product = Product();
-                              product.title = titleController.text.toString();
-                              product.category = selectCategory;
-                              product.price = priceController.text;
-                              product.details =
-                                  detailController.text.toString();
-                              product.description =
-                                  descriptionController.text.toString();
-                              Admin admin = Admin();
-                              await admin.addProduct(product, selectedImage);
-                              Navigator.pushNamed(
-                                  scaffoldKey.currentContext, "/adminhome",
-                                  arguments: 2);
+                            textField(
+                                priceController,
+                                priceNode,
+                                detailNode,
+                                "Enter Product Price",
+                                Icons.attach_money_rounded,
+                                TextInputType.number,
+                                "Please Enter Product Price"),
+                            textField(
+                                detailController,
+                                detailNode,
+                                descriptionNode,
+                                "Detail Of Product",
+                                Icons.details,
+                                TextInputType.text,
+                                "Enter Detail of Product"),
+                            textField(
+                                descriptionController,
+                                descriptionNode,
+                                null,
+                                "Description Of Product",
+                                Icons.description,
+                                TextInputType.text,
+                                "Enter Description of Product"),
+                          ],
+                        )),
+                    Container(
+                        margin: EdgeInsets.only(
+                            top: 10, bottom: 10, right: 70, left: 70),
+                        child: RaisedButton(
+                          padding: EdgeInsets.only(
+                              left: 40, right: 40, top: 10, bottom: 10),
+                          onPressed: () async {
+                            if (formKey.currentState.validate()) {
+                              if (selectCategory == null) {
+                                showSnackBar(
+                                    "Please Choose Category of Product");
+                              } else if (selectedImage == null) {
+                                showSnackBar("Please Choose Image Of Product");
+                              } else {
+                                setState(() {
+                                  pressAddProduct = true;
+                                });
+                                Product product = Product();
+                                product.title = titleController.text.toString();
+                                product.category = selectCategory;
+                                product.price = priceController.text;
+                                product.details =
+                                    detailController.text.toString();
+                                product.description =
+                                    descriptionController.text.toString();
+                                Admin admin = Admin();
+                                await admin.addProduct(product, selectedImage);
+                                Navigator.pushNamed(
+                                    scaffoldKey.currentContext, "/adminhome",
+                                    arguments: 2);
+                              }
                             }
-                          }
-                        },
-                        color: Colors.blueAccent,
-                        child: Text(
-                          "Add Product",
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w700),
-                        ),
-                      ))
-                ]),
-              ),
-            );
-          } else {
-            widget = Scaffold(
-              key: scaffoldKey,
-              backgroundColor: Colors.black,
-              appBar: AppBar(
-                title: Text("Add Product"),
-                centerTitle: true,
+                          },
+                          color: Colors.blueAccent,
+                          child: Text(
+                            "Add Product",
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w700),
+                          ),
+                        ))
+                  ]),
+                ),
+              );
+            } else {
+              widget = Scaffold(
+                key: scaffoldKey,
                 backgroundColor: Colors.black,
-              ),
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
-          return widget;
-        },
+                appBar: AppBar(
+                  title: Text("Add Product"),
+                  centerTitle: true,
+                  backgroundColor: Colors.black,
+                ),
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            return widget;
+          },
+        ),
       );
     } else {
-      return Scaffold(
-          backgroundColor: Colors.black,
-          key: scaffoldKey,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    "Please Wait To Add Product...",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+      return SafeArea(
+        child: Scaffold(
+            backgroundColor: Colors.black,
+            key: scaffoldKey,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Please Wait To Add Product...",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
                   ),
-                ),
-                CircularProgressIndicator(
-                  backgroundColor: Colors.white,
-                ),
-              ],
-            ),
-          ));
+                  CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
+                ],
+              ),
+            )),
+      );
     }
   }
 

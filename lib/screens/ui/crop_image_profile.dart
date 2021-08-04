@@ -60,64 +60,69 @@ class _CropImageState extends State<CropImage> {
     }
   }
 
-  var scaffoldkey = GlobalKey<ScaffoldState>();
+  var scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     if (wait == false) {
-      return Scaffold(
-        key: scaffoldkey,
-        appBar: AppBar(
-          title: Text(
-            "Image Profile",
-            style: TextStyle(color: Colors.white),
+      return SafeArea(
+        child: Scaffold(
+          key: scaffoldKey,
+          appBar: AppBar(
+            title: Text(
+              "Image Profile",
+              style: TextStyle(color: Colors.white),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.black,
           ),
-          centerTitle: true,
-          backgroundColor: Colors.black,
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            getImageWidget(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MaterialButton(
-                  onPressed: () {
-                    pickImage(ImageSource.gallery);
-                  },
-                  color: Colors.green,
-                  child: Text(
-                    "gallery",
-                    style: TextStyle(color: Colors.white),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              getImageWidget(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  MaterialButton(
+                    onPressed: () {
+                      pickImage(ImageSource.gallery);
+                    },
+                    color: Colors.green,
+                    child: Text(
+                      "gallery",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-                MaterialButton(
-                  onPressed: () async {
-                    setState(() {
-                      wait = true;
-                    });
-                    String email = FirebaseAuth.instance.currentUser.email;
-                    await saveDefaultImageToFs(email);
-                    navigateToHome(email, context);
-                  },
-                  color: Colors.green,
-                  child: Text(
-                    "Default Image",
-                    style: TextStyle(color: Colors.white),
+                  MaterialButton(
+                    onPressed: () async {
+                      setState(() {
+                        wait = true;
+                      });
+                      String email = FirebaseAuth.instance.currentUser.email;
+                      await saveDefaultImageToFs(email);
+                      navigateToHome(email, context);
+                    },
+                    color: Colors.green,
+                    child: Text(
+                      "Default Image",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
-            )
-          ],
+                ],
+              )
+            ],
+          ),
         ),
       );
     } else {
-      return Scaffold(
+      return SafeArea(
+        child: Scaffold(
           backgroundColor: Colors.black,
-          key: scaffoldkey,
+          key: scaffoldKey,
           body: Center(
             child: CircularProgressIndicator(),
-          ));
+          ),
+        ),
+      );
     }
   }
 

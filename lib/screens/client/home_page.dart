@@ -53,7 +53,7 @@ class _HomepageState extends State<Homepage> {
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       )),
                   Container(
-                    height: 255,
+                    height: 290,
                     child: ListView.builder(
                       itemBuilder: (context, index) {
                         return Container(
@@ -73,7 +73,7 @@ class _HomepageState extends State<Homepage> {
                                   alignment: Alignment.center,
                                   color: Colors.white,
                                   width: 168,
-                                  height: 160,
+                                  height: 180,
                                   child: InkWell(
                                       onTap: () {
                                         Navigator.pushNamed(
@@ -192,77 +192,79 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: checkInternet(),
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = FutureBuilder(
-            future: getProAndCate(),
-            builder: (context, snapshot) {
-              Widget widget;
-              if (snapshot.hasData) {
-                widget = Scaffold(
-                    backgroundColor: Colors.black,
-                    body: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: Carousel(
-                                autoplay: true,
-                                dotColor: Colors.blue,
-                                borderRadius: true,
-                                boxFit: BoxFit.fitWidth,
-                                dotIncreasedColor: Colors.red,
-                                images: [
-                                  AssetImage("assets/images/shop1.jpg"),
-                                  AssetImage("assets/images/shop7.jpg"),
-                                  AssetImage("assets/images/shop8.jpg"),
-                                  AssetImage("assets/images/shop2.jpg"),
-                                  AssetImage("assets/images/shop3.png"),
-                                  AssetImage("assets/images/shop10.jpg"),
-                                  AssetImage("assets/images/shop4.jpg"),
-                                  AssetImage("assets/images/shop11.jpg"),
-                                  AssetImage("assets/images/shop5.jpg"),
-                                  AssetImage("assets/images/shop6.jpg"),
-                                ]),
-                          ),
-                          //For Loop to show categories
-                          for (var category in allCategories)
-                            getProductsByCategory(category)
-                        ],
-                      ),
-                    ));
-              } else {
-                widget = Scaffold(
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(
+    return SafeArea(
+      child: FutureBuilder(
+        future: checkInternet(),
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = FutureBuilder(
+              future: getProAndCate(),
+              builder: (context, snapshot) {
+                Widget widget;
+                if (snapshot.hasData) {
+                  widget = Scaffold(
                       backgroundColor: Colors.black,
+                      body: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              child: Carousel(
+                                  autoplay: true,
+                                  dotColor: Colors.blue,
+                                  borderRadius: true,
+                                  boxFit: BoxFit.fitWidth,
+                                  dotIncreasedColor: Colors.red,
+                                  images: [
+                                    AssetImage("assets/images/shop1.jpg"),
+                                    AssetImage("assets/images/shop7.jpg"),
+                                    AssetImage("assets/images/shop8.jpg"),
+                                    AssetImage("assets/images/shop2.jpg"),
+                                    AssetImage("assets/images/shop3.png"),
+                                    AssetImage("assets/images/shop10.jpg"),
+                                    AssetImage("assets/images/shop4.jpg"),
+                                    AssetImage("assets/images/shop11.jpg"),
+                                    AssetImage("assets/images/shop5.jpg"),
+                                    AssetImage("assets/images/shop6.jpg"),
+                                  ]),
+                            ),
+                            //For Loop to show categories
+                            for (var category in allCategories)
+                              getProductsByCategory(category)
+                          ],
+                        ),
+                      ));
+                } else {
+                  widget = Scaffold(
+                    backgroundColor: Colors.black,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.black,
+                      ),
                     ),
-                  ),
-                );
-              }
-              return widget;
-            },
-          );
-        } else {
-          widget = Scaffold(
-            backgroundColor: Colors.black,
-            body: Container(
-              alignment: Alignment.topCenter,
-              child: Text(
-                "No Internet...",
-                style: TextStyle(
-                    color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                  );
+                }
+                return widget;
+              },
+            );
+          } else {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              body: Container(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  "No Internet...",
+                  style: TextStyle(
+                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                ),
               ),
-            ),
-          );
-        }
-        return widget;
-      },
+            );
+          }
+          return widget;
+        },
+      ),
     );
   }
 }

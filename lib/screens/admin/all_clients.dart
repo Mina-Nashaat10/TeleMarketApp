@@ -12,7 +12,7 @@ class AllClients extends StatefulWidget {
 class _AllClientsState extends State<AllClients> {
   String email = FirebaseAuth.instance.currentUser.email;
 
-  List<Person> allClients = List<Person>();
+  List<Person> allClients = [];
   String imageUrl;
   Stream<List<Person>> getAllClients() async* {
     allClients.clear();
@@ -25,38 +25,46 @@ class _AllClientsState extends State<AllClients> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          if (allClients.isEmpty) {
-            widget = Scaffold(
-              backgroundColor: Colors.black,
-              body: Center(
+    return SafeArea(
+      child: StreamBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            if (allClients.isEmpty) {
+              widget = Scaffold(
+                backgroundColor: Colors.black,
+                body: Center(
                   child: Container(
-                      width: 120,
-                      height: 120,
-                      child: SvgPicture.asset(
-                          "assets/images/not_found_users_icon.svg"))),
-            );
-          } else {
-            widget = Scaffold(
-              backgroundColor: Colors.black,
-              body: Container(
-                margin: EdgeInsets.all(5),
-                child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                        leading: Container(
-                            width: 70,
-                            height: 70,
+                    width: 120,
+                    height: 120,
+                    child: SvgPicture.asset(
+                        "assets/images/not_found_users_icon.svg"),
+                  ),
+                ),
+              );
+            } else {
+              widget = Scaffold(
+                backgroundColor: Colors.black,
+                body: Container(
+                  margin: EdgeInsets.all(5),
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      return Row(
+                        children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            margin: EdgeInsets.only(top: 10),
                             child: FutureBuilder(
                               builder: (context, snapshot) {
                                 Widget widget;
                                 if (snapshot.hasData) {
-                                  widget = CircleAvatar(
-                                    backgroundImage:
-                                        NetworkImage(snapshot.data),
+                                  widget = ClipOval(
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        snapshot.data,
+                                      ),
+                                    ),
                                   );
                                 } else {
                                   widget = CircularProgressIndicator();
@@ -64,43 +72,66 @@ class _AllClientsState extends State<AllClients> {
                                 return widget;
                               },
                               future: getImageProfile(allClients[index].email),
-                            )),
-                        title: Text(
-                          allClients[index].fullName,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        trailing: email == allClients[index].email
-                            ? SizedBox()
-                            : RaisedButton(
-                                color: Colors.blueAccent,
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed("/profile",
-                                      arguments: allClients[index].email);
-                                },
-                                child: Text(
-                                  "Detail",
-                                  style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(
+                              left: 20,
+                            ),
+                            child: Text(
+                              allClients[index].fullName,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                          const Spacer(),
+                          email == allClients[index].email
+                              ? SizedBox()
+                              : Container(
+                                  width: 100,
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                        Colors.blueAccent,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                          "/profile",
+                                          arguments: allClients[index].email);
+                                    },
+                                    child: Text(
+                                      "Detail",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ));
-                  },
-                  itemCount: snapshot.data.length,
+                        ],
+                      );
+                    },
+                    itemCount: snapshot.data.length,
+                  ),
+                ),
+              );
+            }
+          } else {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.white,
                 ),
               ),
             );
           }
-        } else {
-          widget = Scaffold(
-            backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.white,
-              ),
-            ),
-          );
-        }
-        return widget;
-      },
-      stream: getAllClients(),
+          return widget;
+        },
+        stream: getAllClients(),
+      ),
     );
   }
 

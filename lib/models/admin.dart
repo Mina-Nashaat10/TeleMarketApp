@@ -24,7 +24,7 @@ class Admin extends Person {
 
   //Get users by type [ admin - client ]
   Future<List<Person>> getUsersByType(String type) async {
-    List<Person> adminsList = new List<Person>();
+    List<Person> adminsList = [];
     await fireStore
         .collection("users")
         .where("usertype", isEqualTo: type)
@@ -60,6 +60,7 @@ class Admin extends Person {
       }
       return true;
     } catch (error) {
+      print("Error = $error");
       return false;
     }
   }
@@ -264,7 +265,7 @@ class Admin extends Person {
 
   //Get Products By Category
   Future<List<Product>> getProducts(String category) async {
-    List<Product> products = List<Product>();
+    List<Product> products = [];
     Product product;
     await fireStore
         .collection("products")

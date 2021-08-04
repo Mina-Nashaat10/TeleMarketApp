@@ -36,14 +36,15 @@ class _AllProductsState extends State<AllProducts> {
         : Column(
             children: [
               Container(
-                  alignment: Alignment.centerLeft,
-                  margin: EdgeInsets.only(bottom: 10, left: 10),
-                  child: Text(
-                    category,
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  )),
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(bottom: 10, left: 10),
+                child: Text(
+                  category,
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
               Container(
-                height: 260,
+                height: 290,
                 alignment: Alignment.topLeft,
                 margin: EdgeInsets.all(10),
                 child: ListView.builder(
@@ -51,27 +52,30 @@ class _AllProductsState extends State<AllProducts> {
                     return Container(
                       width: 180,
                       decoration: BoxDecoration(
-                          color: HexColor("#E5E7E9"),
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              bottomRight: Radius.circular(30))),
+                        color: HexColor("#E5E7E9"),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
                       margin: EdgeInsets.only(right: 6, left: 6, bottom: 5),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                              width: 180,
-                              height: 180,
-                              child: InkWell(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                        context, '/previewproduct',
-                                        arguments: categoryProducts[index]);
-                                  },
-                                  child: Image.network(
-                                    categoryProducts[index].imagePath,
-                                  ))),
+                            width: 170,
+                            height: 180,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(context, '/previewproduct',
+                                    arguments: categoryProducts[index]);
+                              },
+                              child: Image.network(
+                                categoryProducts[index].imagePath,
+                              ),
+                            ),
+                          ),
                           Container(
                             margin: EdgeInsets.only(left: 5, top: 2),
                             child: Text(
@@ -142,57 +146,59 @@ class _AllProductsState extends State<AllProducts> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: checkInternet(),
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = FutureBuilder(
-            future: getAllProducts(),
-            builder: (context, snapshot) {
-              Widget widget;
-              if (snapshot.hasData) {
-                widget = Scaffold(
-                  backgroundColor: Colors.black,
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/addproduct");
-                    },
-                    child: Icon(Icons.add),
-                  ),
-                  body: ListView(children: [
-                    for (var category in allCategories)
-                      getListViewWidget(category)
-                  ]),
-                );
-              } else {
-                widget = Scaffold(
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.black,
+    return SafeArea(
+      child: FutureBuilder(
+        future: checkInternet(),
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = FutureBuilder(
+              future: getAllProducts(),
+              builder: (context, snapshot) {
+                Widget widget;
+                if (snapshot.hasData) {
+                  widget = Scaffold(
+                    backgroundColor: Colors.black,
+                    floatingActionButton: FloatingActionButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/addproduct");
+                      },
+                      child: Icon(Icons.add),
                     ),
-                  ),
-                );
-              }
-              return widget;
-            },
-          );
-        } else {
-          widget = Scaffold(
-            backgroundColor: Colors.black,
-            body: Container(
-              alignment: Alignment.topCenter,
-              child: Text(
-                "No Internet...",
-                style: TextStyle(
-                    color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                    body: ListView(children: [
+                      for (var category in allCategories)
+                        getListViewWidget(category)
+                    ]),
+                  );
+                } else {
+                  widget = Scaffold(
+                    backgroundColor: Colors.black,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.black,
+                      ),
+                    ),
+                  );
+                }
+                return widget;
+              },
+            );
+          } else {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              body: Container(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  "No Internet...",
+                  style: TextStyle(
+                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                ),
               ),
-            ),
-          );
-        }
-        return widget;
-      },
+            );
+          }
+          return widget;
+        },
+      ),
     );
   }
 }

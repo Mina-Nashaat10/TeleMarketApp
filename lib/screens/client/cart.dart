@@ -40,30 +40,32 @@ class Cart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: scaffoldKey,
-        backgroundColor: Colors.black,
-        body: FutureBuilder(
-          builder: (context, snapshot) {
-            Widget widget;
-            if (myProducts.length == 0) {
-              widget = Center(
-                child: Text(
-                  "No Products",
-                  style: TextStyle(color: Colors.white),
-                ),
-              );
-            } else if (snapshot.hasData) {
-              widget = myProductsWidget(context, snapshot);
-            } else {
-              widget = Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return widget;
-          },
-          future: getMyProducts(),
-        ));
+    return SafeArea(
+      child: Scaffold(
+          key: scaffoldKey,
+          backgroundColor: Colors.black,
+          body: FutureBuilder(
+            builder: (context, snapshot) {
+              Widget widget;
+              if (myProducts.length == 0) {
+                widget = Center(
+                  child: Text(
+                    "No Products",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                widget = myProductsWidget(context, snapshot);
+              } else {
+                widget = Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return widget;
+            },
+            future: getMyProducts(),
+          )),
+    );
   }
 
   Widget myProductsWidget(
@@ -75,19 +77,19 @@ class Cart extends StatelessWidget {
             Container(
               width: MediaQuery.of(context).size.width,
               height: 40,
-              margin: EdgeInsets.only(right: 8, left: 8, bottom: 5),
+              alignment: Alignment.topCenter,
+              margin: EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 color: HexColor("#00416d"),
               ),
-              child: Center(
-                child: Text(
-                  "Total : " + total.toString() + " EGP",
-                  style: TextStyle(
-                      color: HexColor("#ee6f57"),
-                      fontSize: 30,
-                      fontFamily: "Ranga",
-                      fontWeight: FontWeight.bold),
+              child: Text(
+                "Total : " + total.toString() + " EGP",
+                style: TextStyle(
+                  color: HexColor("#ee6f57"),
+                  fontSize: 25,
+                  fontFamily: "Ranga",
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -95,7 +97,6 @@ class Cart extends StatelessWidget {
               child: ListView.builder(
                 itemBuilder: (context, index) {
                   Random rand = Random();
-
                   return Dismissible(
                       key: Key(rand.nextInt(1000000).toString()),
                       onDismissed: (direction) async {
@@ -138,11 +139,10 @@ class Cart extends StatelessWidget {
                         margin: EdgeInsets.only(top: 8, right: 8, left: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              margin: EdgeInsets.only(top: 5, left: 10),
-                              alignment: Alignment.topLeft,
+                              margin: EdgeInsets.only(top: 10, left: 10),
+                              alignment: Alignment.centerLeft,
                               width: 100,
                               height: 140,
                               child: Image(

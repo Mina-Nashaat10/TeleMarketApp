@@ -41,7 +41,7 @@ class Product {
   }
 
   Future<List<Product>> getAllProducts() async {
-    List<Product> productsList = new List<Product>();
+    List<Product> productsList = [];
     await FirebaseFirestore.instance.collection("products").get().then((value) {
       value.docs.forEach((element) {
         productsList.add(this.toObject(element.data()));

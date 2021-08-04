@@ -72,60 +72,63 @@ class _AllCategoriesState extends State<AllCategories> {
         iconSize = 28;
       }
     }
-    return FutureBuilder(
-      future: checkInternet(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return FutureBuilder(
-            builder: (context, snapshot) {
-              Widget widget;
-              if (snapshot.hasData) {
-                widget = Scaffold(
+    return SafeArea(
+      child: FutureBuilder(
+        future: checkInternet(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return FutureBuilder(
+              builder: (context, snapshot) {
+                Widget widget;
+                if (snapshot.hasData) {
+                  widget = Scaffold(
+                      key: scaffoldKey,
+                      backgroundColor: Colors.black,
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/addcategory");
+                        },
+                        backgroundColor: Colors.blueAccent,
+                        child: Icon(Icons.add),
+                      ),
+                      body: GridView.count(
+                        crossAxisCount: 2,
+                        children: List.generate(allCategories.length, (index) {
+                          return cartView(
+                              screenWidth, index, fontSize, iconSize);
+                        }),
+                      ));
+                } else {
+                  widget = Scaffold(
                     key: scaffoldKey,
                     backgroundColor: Colors.black,
-                    floatingActionButton: FloatingActionButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/addcategory");
-                      },
-                      backgroundColor: Colors.blueAccent,
-                      child: Icon(Icons.add),
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.black38,
+                      ),
                     ),
-                    body: GridView.count(
-                      crossAxisCount: 2,
-                      children: List.generate(allCategories.length, (index) {
-                        return cartView(screenWidth, index, fontSize, iconSize);
-                      }),
-                    ));
-              } else {
-                widget = Scaffold(
-                  key: scaffoldKey,
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.black38,
-                    ),
-                  ),
-                );
-              }
-              return widget;
-            },
-            future: getCategories(),
-          );
-        } else {
-          return Scaffold(
-            key: scaffoldKey,
-            backgroundColor: Colors.black,
-            body: Container(
-              alignment: Alignment.topCenter,
-              child: Text(
-                "No Internet...",
-                style: TextStyle(
-                    color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                  );
+                }
+                return widget;
+              },
+              future: getCategories(),
+            );
+          } else {
+            return Scaffold(
+              key: scaffoldKey,
+              backgroundColor: Colors.black,
+              body: Container(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  "No Internet...",
+                  style: TextStyle(
+                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                ),
               ),
-            ),
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 

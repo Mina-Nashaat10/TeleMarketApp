@@ -46,150 +46,153 @@ class _UpdateProductState extends State<UpdateProduct> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = Scaffold(
-            key: scaffoldKey,
-            backgroundColor: Colors.black,
-            appBar: AppBar(
-              title: Text("Update Product"),
-              centerTitle: true,
+    return SafeArea(
+      child: FutureBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = Scaffold(
+              key: scaffoldKey,
               backgroundColor: Colors.black,
-            ),
-            body: Container(
-              margin: EdgeInsets.all(10),
-              child: ListView(children: [
-                Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        getImageWidget(),
-                        textField(
-                            nameController,
-                            nameNode,
-                            null,
-                            "Enter Product Name",
-                            Icons.drive_file_rename_outline,
-                            TextInputType.text,
-                            "Please Enter Product Name"),
-                        Container(
-                          margin: EdgeInsets.only(top: 20, right: 20, left: 20),
-                          child: DropdownButton(
-                            isExpanded: true,
-                            style: TextStyle(color: Colors.white),
-                            dropdownColor: Colors.black,
-                            icon: Icon(Icons.arrow_drop_down),
-                            iconSize: 42,
-                            iconEnabledColor: Colors.white,
-                            hint: Text(
-                              "Enter Category Type",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            items: myCategories.map((e) {
-                              return DropdownMenuItem(
-                                child: Text(
-                                  e,
-                                  style: TextStyle(
-                                      fontSize: 28, fontFamily: "Ranga"),
-                                ),
-                                value: e,
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectCategory = value;
-                              });
-                            },
-                            value: selectCategory,
-                          ),
-                        ),
-                        textField(
-                            priceController,
-                            priceNode,
-                            detailNode,
-                            "Enter Product Price",
-                            Icons.attach_money_rounded,
-                            TextInputType.number,
-                            "Please Enter Product Price"),
-                        textField(
-                            detailsController,
-                            detailNode,
-                            descriptionNode,
-                            "Enter Product Detail",
-                            Icons.details,
-                            TextInputType.text,
-                            "Please Enter Product Detail"),
-                        textField(
-                            descriptionController,
-                            descriptionNode,
-                            descriptionNode,
-                            "Enter Product Description",
-                            Icons.description,
-                            TextInputType.text,
-                            "Please Enter Product Description"),
-                      ],
-                    )),
-                Container(
-                    margin: EdgeInsets.only(
-                        top: 10, bottom: 10, right: 70, left: 70),
-                    child: RaisedButton(
-                      padding: EdgeInsets.only(
-                          left: 40, right: 40, top: 10, bottom: 10),
-                      onPressed: () {
-                        if (formKey.currentState.validate()) {
-                          if (selectCategory == null) {
-                            showSnackBar("Please Choose Category of Product");
-                          } else {
-                            setState(() {
-                              pressAddProduct = true;
-                            });
-                            Product newProduct = Product();
-                            newProduct.id = product.id;
-                            newProduct.title = nameController.text.toString();
-                            newProduct.category = selectCategory;
-                            newProduct.description =
-                                descriptionController.text.toString();
-                            newProduct.price = priceController.text;
-                            newProduct.details =
-                                detailsController.text.toString();
-                            Admin admin = Admin();
-                            if (selectedImage == null) {
-                              newProduct.imagePath = product.imagePath;
-                              admin.updateProduct(newProduct);
-                            } else {
-                              admin.updateProduct(newProduct, selectedImage);
-                            }
-                            Navigator.pushNamed(context, "/adminhome",
-                                arguments: 2);
-                          }
-                        }
-                      },
-                      color: Colors.blueAccent,
-                      child: Text(
-                        "update Product",
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w700),
-                      ),
-                    ))
-              ]),
-            ),
-          );
-        } else {
-          widget = Scaffold(
-            key: scaffoldKey,
-            backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.blueAccent,
+              appBar: AppBar(
+                title: Text("Update Product"),
+                centerTitle: true,
+                backgroundColor: Colors.black,
               ),
-            ),
-          );
-        }
-        return widget;
-      },
-      future: getCategories(),
+              body: Container(
+                margin: EdgeInsets.all(10),
+                child: ListView(children: [
+                  Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          getImageWidget(),
+                          textField(
+                              nameController,
+                              nameNode,
+                              null,
+                              "Enter Product Name",
+                              Icons.drive_file_rename_outline,
+                              TextInputType.text,
+                              "Please Enter Product Name"),
+                          Container(
+                            margin:
+                                EdgeInsets.only(top: 20, right: 20, left: 20),
+                            child: DropdownButton(
+                              isExpanded: true,
+                              style: TextStyle(color: Colors.white),
+                              dropdownColor: Colors.black,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 42,
+                              iconEnabledColor: Colors.white,
+                              hint: Text(
+                                "Enter Category Type",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              items: myCategories.map((e) {
+                                return DropdownMenuItem(
+                                  child: Text(
+                                    e,
+                                    style: TextStyle(
+                                        fontSize: 28, fontFamily: "Ranga"),
+                                  ),
+                                  value: e,
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectCategory = value;
+                                });
+                              },
+                              value: selectCategory,
+                            ),
+                          ),
+                          textField(
+                              priceController,
+                              priceNode,
+                              detailNode,
+                              "Enter Product Price",
+                              Icons.attach_money_rounded,
+                              TextInputType.number,
+                              "Please Enter Product Price"),
+                          textField(
+                              detailsController,
+                              detailNode,
+                              descriptionNode,
+                              "Enter Product Detail",
+                              Icons.details,
+                              TextInputType.text,
+                              "Please Enter Product Detail"),
+                          textField(
+                              descriptionController,
+                              descriptionNode,
+                              descriptionNode,
+                              "Enter Product Description",
+                              Icons.description,
+                              TextInputType.text,
+                              "Please Enter Product Description"),
+                        ],
+                      )),
+                  Container(
+                      margin: EdgeInsets.only(
+                          top: 10, bottom: 10, right: 70, left: 70),
+                      child: RaisedButton(
+                        padding: EdgeInsets.only(
+                            left: 40, right: 40, top: 10, bottom: 10),
+                        onPressed: () {
+                          if (formKey.currentState.validate()) {
+                            if (selectCategory == null) {
+                              showSnackBar("Please Choose Category of Product");
+                            } else {
+                              setState(() {
+                                pressAddProduct = true;
+                              });
+                              Product newProduct = Product();
+                              newProduct.id = product.id;
+                              newProduct.title = nameController.text.toString();
+                              newProduct.category = selectCategory;
+                              newProduct.description =
+                                  descriptionController.text.toString();
+                              newProduct.price = priceController.text;
+                              newProduct.details =
+                                  detailsController.text.toString();
+                              Admin admin = Admin();
+                              if (selectedImage == null) {
+                                newProduct.imagePath = product.imagePath;
+                                admin.updateProduct(newProduct);
+                              } else {
+                                admin.updateProduct(newProduct, selectedImage);
+                              }
+                              Navigator.pushNamed(context, "/adminhome",
+                                  arguments: 2);
+                            }
+                          }
+                        },
+                        color: Colors.blueAccent,
+                        child: Text(
+                          "update Product",
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w700),
+                        ),
+                      ))
+                ]),
+              ),
+            );
+          } else {
+            widget = Scaffold(
+              key: scaffoldKey,
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.blueAccent,
+                ),
+              ),
+            );
+          }
+          return widget;
+        },
+        future: getCategories(),
+      ),
     );
   }
 

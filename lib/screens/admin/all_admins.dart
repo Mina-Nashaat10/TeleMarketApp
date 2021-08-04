@@ -10,7 +10,7 @@ class AllAdmins extends StatefulWidget {
 
 class _AllAdminsState extends State<AllAdmins> {
   String email = FirebaseAuth.instance.currentUser.email;
-  List<Person> allAdmins = List<Person>();
+  List<Person> allAdmins = [];
   Person person = Person();
 
   Stream<List<Person>> getAllAdmins() async* {
@@ -21,99 +21,106 @@ class _AllAdminsState extends State<AllAdmins> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
+    return SafeArea(
+      child: StreamBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = Scaffold(
               backgroundColor: Colors.black,
-              title: Text(
-                "All Admins",
-                style: TextStyle(color: Colors.white),
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                title: Text(
+                  "All Admins",
+                  style: TextStyle(color: Colors.white),
+                ),
+                centerTitle: true,
               ),
-              centerTitle: true,
-            ),
-            floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context)
-                      .pushNamed("/registration", arguments: "isAdmin");
-                },
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 30,
-                )),
-            body: Container(
-              margin: EdgeInsets.all(5),
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return FutureBuilder(
-                    builder: (context, snapshot) {
-                      Widget widget;
-                      if (snapshot.hasData) {
-                        widget = ListTile(
-                            leading: Container(
-                              width: 70,
-                              height: 70,
-                              child: CircleAvatar(
-                                  backgroundImage: NetworkImage(snapshot.data)),
-                            ),
-                            title: Text(
-                              allAdmins[index].fullName,
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            trailing: email == allAdmins[index].email
-                                ? SizedBox()
-                                : RaisedButton(
-                                    color: Colors.blueAccent,
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          "/profile",
-                                          arguments: allAdmins[index].email);
-                                    },
-                                    child: Text(
-                                      "Detail",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ));
-                      } else {
-                        widget = Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return widget;
-                    },
-                    future: getImageProfile(),
-                  );
-                },
-                itemCount: allAdmins.length,
+              floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context)
+                        .pushNamed("/registration", arguments: "isAdmin");
+                  },
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  )),
+              body: Container(
+                margin: EdgeInsets.all(5),
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return FutureBuilder(
+                      builder: (context, snapshot) {
+                        Widget widget;
+                        if (snapshot.hasData) {
+                          widget = ListTile(
+                              leading: Container(
+                                width: 70,
+                                height: 70,
+                                child: CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(snapshot.data)),
+                              ),
+                              title: Text(
+                                allAdmins[index].fullName,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              trailing: email == allAdmins[index].email
+                                  ? SizedBox()
+                                  : ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.blueAccent),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                            "/profile",
+                                            arguments: allAdmins[index].email);
+                                      },
+                                      child: Text(
+                                        "Detail",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ));
+                        } else {
+                          widget = Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return widget;
+                      },
+                      future: getImageProfile(),
+                    );
+                  },
+                  itemCount: allAdmins.length,
+                ),
               ),
-            ),
-          );
-        } else {
-          widget = Scaffold(
-            appBar: AppBar(
+            );
+          } else {
+            widget = Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                title: Text(
+                  "All Admins",
+                  style: TextStyle(color: Colors.white),
+                ),
+                centerTitle: true,
+              ),
               backgroundColor: Colors.black,
-              title: Text(
-                "All Admins",
-                style: TextStyle(color: Colors.white),
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.white,
+                ),
               ),
-              centerTitle: true,
-            ),
-            backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.white,
-              ),
-            ),
-          );
-        }
-        return widget;
-      },
-      stream: getAllAdmins(),
+            );
+          }
+          return widget;
+        },
+        stream: getAllAdmins(),
+      ),
     );
   }
 

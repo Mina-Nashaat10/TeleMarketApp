@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,139 +38,144 @@ class _AddCategoryState extends State<AddCategory> {
   @override
   Widget build(BuildContext context) {
     if (pressAddCategory == false) {
-      return Scaffold(
-        key: scaffoldKey,
-        appBar: AppBar(
-          title: Text("Add Category"),
-          centerTitle: true,
+      return SafeArea(
+        child: Scaffold(
+          key: scaffoldKey,
+          appBar: AppBar(
+            title: Text("Add Category"),
+            centerTitle: true,
+            backgroundColor: Colors.black,
+          ),
           backgroundColor: Colors.black,
-        ),
-        backgroundColor: Colors.black,
-        body: Container(
-          margin: EdgeInsets.all(10),
-          child: ListView(
-            children: [
-              getImageWidget(),
-              Container(
-                margin: EdgeInsets.only(top: 20, right: 10, left: 10),
-                child: TextField(
-                  controller: categoryName,
-                  focusNode: nameNode,
-                  style: TextStyle(color: Colors.white),
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.white, width: 0.0),
-                    ),
-                    hintText: "Enter Name of Category",
-                    hintStyle: TextStyle(fontSize: 15, color: Colors.white60),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        gapPadding: 20),
-                    prefixIcon: Icon(
-                      Icons.category,
-                      color: Colors.white60,
-                      size: 30,
-                    ),
-                  ),
-                  keyboardType: TextInputType.text,
-                  obscureText: false,
-                  maxLines: 1,
-                  onSubmitted: (_) =>
-                      FocusScope.of(context).requestFocus(desNode),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 15, right: 10, left: 10),
-                child: TextField(
-                  controller: categoryDes,
-                  focusNode: desNode,
-                  textCapitalization: TextCapitalization.words,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
+          body: Container(
+            margin: EdgeInsets.all(10),
+            child: ListView(
+              children: [
+                getImageWidget(),
+                Container(
+                  margin: EdgeInsets.only(top: 20, right: 10, left: 10),
+                  child: TextField(
+                    controller: categoryName,
+                    focusNode: nameNode,
+                    style: TextStyle(color: Colors.white),
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
                       enabledBorder: const OutlineInputBorder(
                         borderSide:
                             const BorderSide(color: Colors.white, width: 0.0),
                       ),
-                      hintText: "Enter Description of Category",
+                      hintText: "Enter Name of Category",
                       hintStyle: TextStyle(fontSize: 15, color: Colors.white60),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           gapPadding: 20),
                       prefixIcon: Icon(
-                        Icons.description,
+                        Icons.category,
                         color: Colors.white60,
-                        size: 35,
-                      )),
-                  keyboardType: TextInputType.text,
-                  obscureText: false,
-                  maxLines: 4,
+                        size: 30,
+                      ),
+                    ),
+                    keyboardType: TextInputType.text,
+                    obscureText: false,
+                    maxLines: 1,
+                    onSubmitted: (_) =>
+                        FocusScope.of(context).requestFocus(desNode),
+                  ),
                 ),
-              ),
-              Container(
-                  margin: EdgeInsets.only(top: 25, right: 70, left: 70),
-                  height: 50.0,
-                  child: RaisedButton(
-                    child: Text(" Add Category "),
-                    onPressed: () {
-                      if (_selectedImage == null) {
-                        snackBar("Please Choose Image of Category");
-                      } else if (categoryName.text == "") {
-                        snackBar("Please Enter Category Name");
-                      } else if (categoryDes.text == "") {
-                        snackBar("Please Enter Category Description");
-                      } else {
-                        Categories category = new Categories();
-                        category.name = categoryName.text.toString();
-                        category.description = categoryDes.text.toString();
-                        Admin admin = Admin();
-                        setState(() {
-                          pressAddCategory = true;
-                        });
-                        admin
-                            .addCategory(category, _selectedImage)
-                            .then((value) {
-                          if (value == true) {
-                            Navigator.pushNamed(context, "/adminhome",
-                                arguments: 1);
-                          }
-                        });
-                      }
-                    },
-                    color: Color(0xff0091EA),
-                    textColor: Colors.white,
-                    splashColor: Colors.grey,
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  ))
-            ],
+                Container(
+                  margin: EdgeInsets.only(top: 15, right: 10, left: 10),
+                  child: TextField(
+                    controller: categoryDes,
+                    focusNode: desNode,
+                    textCapitalization: TextCapitalization.words,
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(color: Colors.white, width: 0.0),
+                        ),
+                        hintText: "Enter Description of Category",
+                        hintStyle:
+                            TextStyle(fontSize: 15, color: Colors.white60),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            gapPadding: 20),
+                        prefixIcon: Icon(
+                          Icons.description,
+                          color: Colors.white60,
+                          size: 35,
+                        )),
+                    keyboardType: TextInputType.text,
+                    obscureText: false,
+                    maxLines: 4,
+                  ),
+                ),
+                Container(
+                    margin: EdgeInsets.only(top: 25, right: 70, left: 70),
+                    height: 50.0,
+                    child: RaisedButton(
+                      child: Text(" Add Category "),
+                      onPressed: () {
+                        if (_selectedImage == null) {
+                          snackBar("Please Choose Image of Category");
+                        } else if (categoryName.text == "") {
+                          snackBar("Please Enter Category Name");
+                        } else if (categoryDes.text == "") {
+                          snackBar("Please Enter Category Description");
+                        } else {
+                          Categories category = new Categories();
+                          category.name = categoryName.text.toString();
+                          category.description = categoryDes.text.toString();
+                          Admin admin = Admin();
+                          setState(() {
+                            pressAddCategory = true;
+                          });
+                          admin
+                              .addCategory(category, _selectedImage)
+                              .then((value) {
+                            if (value == true) {
+                              Navigator.pushNamed(context, "/adminhome",
+                                  arguments: 1);
+                            }
+                          });
+                        }
+                      },
+                      color: Color(0xff0091EA),
+                      textColor: Colors.white,
+                      splashColor: Colors.grey,
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    ))
+              ],
+            ),
           ),
         ),
       );
     } else {
-      return Scaffold(
-          backgroundColor: Colors.black,
-          key: scaffoldKey,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    "Please Wait To Add Category...",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+      return SafeArea(
+        child: Scaffold(
+            backgroundColor: Colors.black,
+            key: scaffoldKey,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      "Please Wait To Add Category...",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
                   ),
-                ),
-                CircularProgressIndicator(
-                  backgroundColor: Colors.white,
-                ),
-              ],
-            ),
-          ));
+                  CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
+                ],
+              ),
+            )),
+      );
     }
   }
 

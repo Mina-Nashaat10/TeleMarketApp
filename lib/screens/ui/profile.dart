@@ -2,14 +2,15 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tele_market/models/admin.dart';
 import 'package:tele_market/models/person.dart';
-import 'package:tele_market/services/internet.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -29,8 +30,14 @@ class _ProfileState extends State<Profile> {
   bool selectNewImage = false;
   String clientEmail;
   String email = FirebaseAuth.instance.currentUser.email;
-  Future<Person> getData() async {
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     clientEmail = ModalRoute.of(context).settings.arguments;
+  }
+
+  Future<Person> getData() async {
     if (clientEmail == null) {
       person = await person.getUserInfo(email);
     } else {
@@ -42,200 +49,185 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     if (selectNewImage == true) {
-      return Scaffold(
+      return SafeArea(
+        child: Scaffold(
           backgroundColor: Colors.black,
           body: Center(
             child: CircularProgressIndicator(
               backgroundColor: Colors.white,
             ),
-          ));
+          ),
+        ),
+      );
     } else {
-      return FutureBuilder(
-        builder: (context, snapshot) {
-          Widget widget;
-          if (snapshot.hasData) {
-            widget = FutureBuilder(
-              future: getData(),
-              builder: (context, snapshot) {
-                Widget widget;
-                if (snapshot.hasData) {
-                  widget = Scaffold(
-                      backgroundColor: Colors.black,
-                      key: scaffoldKey,
-                      body: Container(
-                        padding: EdgeInsets.all(10),
-                        child: ListView(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 20.0),
-                              child: new Stack(children: <Widget>[
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                        width: 130,
-                                        height: 130,
-                                        child: FutureBuilder(
-                                          builder: (context, snapshot) {
-                                            Widget widget;
-                                            if (snapshot.hasData) {
-                                              widget = CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                    snapshot.data,
-                                                    scale: 70),
-                                              );
-                                            } else {
-                                              widget =
-                                                  CircularProgressIndicator();
-                                            }
-                                            return widget;
-                                          },
-                                          future: getImageProfile(
-                                              clientEmail == null
-                                                  ? email
-                                                  : clientEmail),
-                                        ))
-                                  ],
-                                ),
-                                Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 90.0, right: 90.0),
-                                    child: new Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        InkWell(
-                                          onTap: clientEmail == null
-                                              ? () {
-                                                  var alertDialog = AlertDialog(
-                                                    content: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        ListTile(
-                                                          leading: Icon(
-                                                              Icons.camera),
-                                                          title:
-                                                              Text("Gallery"),
-                                                          onTap: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                            pickImage(
-                                                                ImageSource
-                                                                    .gallery);
-                                                          },
-                                                        ),
-                                                        ListTile(
-                                                          leading: Icon(
-                                                              Icons.camera_alt),
-                                                          title: Text("Camera"),
-                                                          onTap: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                            pickImage(
-                                                                ImageSource
-                                                                    .camera);
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        alertDialog,
-                                                  );
-                                                }
-                                              : () {
-                                                  var snackBar = SnackBar(
-                                                    content: Text(
-                                                        "You Can not change profile image..."),
-                                                  );
-                                                  scaffoldKey.currentState
-                                                      .showSnackBar(snackBar);
-                                                },
-                                          child: new CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 25.0,
-                                            child: new Icon(
-                                              Icons.camera_alt,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    )),
-                              ]),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              margin: EdgeInsets.only(left: 5, bottom: 10),
-                              child: Text("Personal Information",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                  )),
-                            ),
-                            container("assets/images/profile_icon.svg", "Name",
-                                person.fullName),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            container("assets/images/email_icon.svg", "E-mail",
-                                person.email),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            container("assets/images/password_icon.svg",
-                                "Password", "**********"),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            container("assets/images/telephone_icon.svg",
-                                "Phone", person.phone.toString()),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            container("assets/images/map_icon.svg", "Address",
-                                person.address.toString()),
-                          ],
+      return SafeArea(
+        child: FutureBuilder(
+          future: getData(),
+          builder: (context, snapshot) {
+            Widget widget;
+            if (snapshot.hasData) {
+              widget = Scaffold(
+                backgroundColor: Colors.black,
+                key: scaffoldKey,
+                appBar: clientEmail == null
+                    ? null
+                    : AppBar(
+                        backgroundColor: Colors.black,
+                        leading: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                      ));
-                } else {
-                  widget = Scaffold(
-                    backgroundColor: Colors.black,
-                    body: Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.white,
                       ),
-                    ),
-                  );
-                }
-                return widget;
-              },
-            );
-          } else {
-            widget = Scaffold(
-              backgroundColor: Colors.black,
-              body: Container(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  "No Internet...",
-                  style: TextStyle(
-                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
+                body: Container(
+                  padding: EdgeInsets.all(10),
+                  child: ListView(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 20.0),
+                        child: new Stack(children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 130,
+                                height: 130,
+                                child: FutureBuilder(
+                                  builder: (context, snapshot) {
+                                    Widget widget;
+                                    if (snapshot.hasData) {
+                                      widget = CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            snapshot.data,
+                                            scale: 70),
+                                      );
+                                    } else {
+                                      widget = CircularProgressIndicator();
+                                    }
+                                    return widget;
+                                  },
+                                  future: getImageProfile(clientEmail == null
+                                      ? email
+                                      : clientEmail),
+                                ),
+                              )
+                            ],
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 90.0, right: 90.0),
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  InkWell(
+                                    onTap: clientEmail == null
+                                        ? () {
+                                            var alertDialog = AlertDialog(
+                                              content: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  ListTile(
+                                                    leading: Icon(Icons.camera),
+                                                    title: Text("Gallery"),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      pickImage(
+                                                          ImageSource.gallery);
+                                                    },
+                                                  ),
+                                                  ListTile(
+                                                    leading:
+                                                        Icon(Icons.camera_alt),
+                                                    title: Text("Camera"),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      pickImage(
+                                                          ImageSource.camera);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => alertDialog,
+                                            );
+                                          }
+                                        : () {
+                                            var snackBar = SnackBar(
+                                              content: Text(
+                                                  "You Can not change profile image..."),
+                                            );
+                                            scaffoldKey.currentState
+                                                .showSnackBar(snackBar);
+                                          },
+                                    child: new CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 25.0,
+                                      child: new Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )),
+                        ]),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        margin: EdgeInsets.only(left: 5, bottom: 10),
+                        child: Text("Personal Information",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            )),
+                      ),
+                      container("assets/images/profile_icon.svg", "Name",
+                          person.fullName),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      container("assets/images/email_icon.svg", "E-mail",
+                          person.email),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      container("assets/images/password_icon.svg", "Password",
+                          "**********"),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      container("assets/images/telephone_icon.svg", "Phone",
+                          person.phone.toString()),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      container("assets/images/map_icon.svg", "Address",
+                          person.address.toString()),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
-          return widget;
-        },
-        future: checkInternet(),
+              );
+            } else {
+              widget = Scaffold(
+                backgroundColor: Colors.black,
+                body: Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              );
+            }
+            return widget;
+          },
+        ),
       );
     }
   }
@@ -259,12 +251,12 @@ class _ProfileState extends State<Profile> {
               Text(
                 property,
                 style: TextStyle(
-                    color: Colors.white, fontSize: 25, fontFamily: "Lobster"),
+                    color: Colors.white, fontSize: 16, fontFamily: "Lobster"),
                 textAlign: TextAlign.start,
               ),
               Text(
                 value,
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: TextStyle(color: Colors.white, fontSize: 15),
               ),
             ],
           ),
@@ -282,6 +274,10 @@ class _ProfileState extends State<Profile> {
                             SnackBar(content: Text("Can not to update E-mail"));
                         scaffoldKey.currentState.showSnackBar(snackBar);
                       } else if (property == "Password") {
+                        oldPassController.text = "";
+                        newPassController.text = "";
+                        controller.text = "";
+
                         passwordAlertDialog("Password", "Enter New Password",
                             "Password", Icons.lock);
                       } else if (property == "Phone") {
@@ -422,166 +418,188 @@ class _ProfileState extends State<Profile> {
     var alert = AlertDialog(
       backgroundColor: Colors.blueAccent,
       title: Text(
-        "update " + property,
+        "Update " + property,
         style: TextStyle(color: Colors.white),
       ),
-      content: Form(
-        key: formKey,
-        child: ListView(
-          children: [
-            Container(
-                width: 300,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      style: TextStyle(color: Colors.white),
-                      controller: oldPassController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 0.0),
-                        ),
-                        hintText: hintText,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(0.0)),
-                            borderSide: BorderSide(color: Colors.black)),
-                        hintMaxLines: 1,
-                        hintStyle: TextStyle(color: Colors.white, fontSize: 17),
-                        labelText: "Old " + labelText,
-                        labelStyle:
-                            TextStyle(color: Colors.white, fontSize: 22),
-                        prefixIcon: Icon(
-                          iconData,
-                          color: Colors.white,
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            gapPadding: 20),
-                        errorStyle: TextStyle(fontSize: 18),
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty)
-                          return "Please Enter old " + property;
-                        else if (value != person.password) {
-                          return "Please Enter The Correct Password";
-                        }
-                        return null;
-                      },
+      scrollable: true,
+      content: Container(
+        height: 380,
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                ),
+                cursorColor: Colors.black,
+                controller: oldPassController,
+                autofocus: true,
+                obscureText: true,
+                decoration: InputDecoration(
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.black, width: 0.0),
+                  ),
+                  hintText: hintText,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(0.0),
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    TextFormField(
-                      style: TextStyle(color: Colors.white),
-                      controller: newPassController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 0.0),
-                        ),
-                        hintText: hintText,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.black)),
-                        hintMaxLines: 1,
-                        hintStyle: TextStyle(color: Colors.white, fontSize: 17),
-                        labelText: "New " + labelText,
-                        labelStyle:
-                            TextStyle(color: Colors.white, fontSize: 22),
-                        prefixIcon: Icon(
-                          iconData,
-                          color: Colors.white,
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            gapPadding: 20),
-                        errorStyle: TextStyle(fontSize: 18),
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty)
-                          return "Please Enter " + property;
-                        else if (value.length < 6)
-                          return "Password must larger than 6 character";
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    TextFormField(
-                      style: TextStyle(color: Colors.white),
-                      controller: controller,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 0.0),
-                        ),
-                        hintText: hintText,
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            borderSide: BorderSide(color: Colors.black)),
-                        hintMaxLines: 1,
-                        hintStyle: TextStyle(color: Colors.white, fontSize: 17),
-                        labelText: "New " + labelText,
-                        labelStyle:
-                            TextStyle(color: Colors.white, fontSize: 22),
-                        prefixIcon: Icon(
-                          iconData,
-                          color: Colors.white,
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            gapPadding: 20),
-                        errorStyle: TextStyle(fontSize: 18),
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty)
-                          return "Please Enter " + property;
-                        else if (value.length < 6)
-                          return "Password must larger than 6 character";
-                        else if (newPassController.text != controller.text) {
-                          return "Two Passwords not Match...";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                )),
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              width: 100,
-              height: 40,
-              child: RaisedButton(
-                onPressed: () {
-                  if (formKey.currentState.validate()) {
-                    person.password = newPassController.text.toString();
-                    admin.updateAdmin(person, true).then((value) {
-                      if (value == true) {
-                        Navigator.of(context).pop();
-                        setState(() {});
-                      }
-                    });
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  hintMaxLines: 1,
+                  hintStyle: TextStyle(color: Colors.white, fontSize: 17),
+                  labelText: "Old " + labelText,
+                  labelStyle: TextStyle(color: Colors.white, fontSize: 22),
+                  prefixIcon: Icon(
+                    iconData,
+                    color: Colors.white,
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5), gapPadding: 20),
+                  errorStyle: TextStyle(fontSize: 15),
+                ),
+                validator: (value) {
+                  if (value.isEmpty)
+                    return "Please Enter old " + property;
+                  else if (value != person.password) {
+                    return "Please Enter The Correct Password";
                   }
+                  return null;
                 },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                child: Text(
-                  "update",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                color: Colors.black,
               ),
-            ),
-          ],
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                cursorColor: Colors.black,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                ),
+                controller: newPassController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.black, width: 0.0),
+                  ),
+                  hintText: hintText,
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      borderSide: BorderSide(color: Colors.black)),
+                  hintMaxLines: 1,
+                  hintStyle: TextStyle(color: Colors.white, fontSize: 17),
+                  labelText: "New " + labelText,
+                  labelStyle: TextStyle(color: Colors.white, fontSize: 22),
+                  prefixIcon: Icon(
+                    iconData,
+                    color: Colors.white,
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5), gapPadding: 20),
+                  errorStyle: TextStyle(fontSize: 15),
+                ),
+                validator: (value) {
+                  if (value.isEmpty)
+                    return "Please Enter " + property;
+                  else if (value.length < 6)
+                    return "Password must larger than 6 character";
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                cursorColor: Colors.black,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                ),
+                controller: controller,
+                obscureText: true,
+                decoration: InputDecoration(
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.black, width: 0.0),
+                  ),
+                  hintText: hintText,
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      borderSide: BorderSide(color: Colors.black)),
+                  hintMaxLines: 1,
+                  hintStyle: TextStyle(color: Colors.white, fontSize: 17),
+                  labelText: "New " + labelText,
+                  labelStyle: TextStyle(color: Colors.white, fontSize: 22),
+                  prefixIcon: Icon(
+                    iconData,
+                    color: Colors.white,
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5), gapPadding: 20),
+                  errorStyle: TextStyle(fontSize: 15),
+                ),
+                validator: (value) {
+                  if (value.isEmpty)
+                    return "Please Enter " + property;
+                  else if (value.length < 6)
+                    return "Password must larger than 6 character";
+                  else if (newPassController.text != controller.text) {
+                    return "Two Passwords not Match...";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: 120,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      if (formKey.currentState.validate()) {
+                        person.password = newPassController.text.toString();
+                        admin.updateAdmin(person, true).then((value) {
+                          Navigator.of(context).pop();
+                          var snackBar = SnackBar(
+                            content: Text(
+                              "Password Changed Successfully...",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        });
+                      }
+                    },
+                    child: Text(
+                      "Update",
+                      style: TextStyle(color: HexColor("DF711B"), fontSize: 20),
+                    ),
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                        ),
+                      ),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        HexColor("#fde49c"),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -589,12 +607,6 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (context) => alert,
     );
-  }
-
-  Future<bool> checkInternet() async {
-    isAvailable = await Internet.checkInternet();
-    if (isAvailable) return true;
-    return false;
   }
 
   Future saveImageToFs(String email, File cropped, String path) async {

@@ -26,85 +26,87 @@ class _ProductsByCategoryState extends State<ProductsByCategory> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.black,
-              title: Text("Products"),
-              centerTitle: true,
-            ),
-            backgroundColor: Colors.black,
-            body: Container(
-                margin: EdgeInsets.all(5),
-                child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/previewproduct',
-                            arguments: products[index]);
-                      },
-                      child: Row(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(
-                                top: 5, bottom: 5, right: 10, left: 10),
-                            width: 70,
-                            height: 70,
-                            child: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(products[index].imagePath),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                products[index].title,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    fontFamily: "Lobster"),
-                              ),
-                              Text(products[index].price,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      fontFamily: "Lobster")),
-                            ],
-                          ),
-                          Divider(
-                            color: Colors.white,
-                            height: 10,
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                  itemCount: products.length,
-                )),
-          );
-        } else {
-          widget = Scaffold(
+    return SafeArea(
+      child: FutureBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.black,
                 title: Text("Products"),
                 centerTitle: true,
               ),
               backgroundColor: Colors.black,
-              body: Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.black26,
+              body: Container(
+                  margin: EdgeInsets.all(5),
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/previewproduct',
+                              arguments: products[index]);
+                        },
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(
+                                  top: 5, bottom: 5, right: 10, left: 10),
+                              width: 70,
+                              height: 70,
+                              child: CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(products[index].imagePath),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  products[index].title,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      fontFamily: "Lobster"),
+                                ),
+                                Text(products[index].price,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        fontFamily: "Lobster")),
+                              ],
+                            ),
+                            Divider(
+                              color: Colors.white,
+                              height: 10,
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                    itemCount: products.length,
+                  )),
+            );
+          } else {
+            widget = Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Colors.black,
+                  title: Text("Products"),
+                  centerTitle: true,
                 ),
-              ));
-        }
-        return widget;
-      },
-      future: getProducts(),
+                backgroundColor: Colors.black,
+                body: Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.black26,
+                  ),
+                ));
+          }
+          return widget;
+        },
+        future: getProducts(),
+      ),
     );
   }
 }

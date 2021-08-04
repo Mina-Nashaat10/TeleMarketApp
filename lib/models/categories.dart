@@ -8,7 +8,7 @@ class Categories {
   String imgPath;
   Product product;
   Categories();
-  Categories.createCategory(this.id,this.name, this.description, this.imgPath);
+  Categories.createCategory(this.id, this.name, this.description, this.imgPath);
 
   Map<String, dynamic> toMap(Categories categories) {
     Map<String, dynamic> map = new Map<String, dynamic>();
@@ -27,12 +27,15 @@ class Categories {
     categories.imgPath = map['imgpath'];
     return categories;
   }
-  Future<List<String>> getAllCategories()async
-  {
-    List<String> myCategories = List<String>();
+
+  Future<List<String>> getAllCategories() async {
+    List<String> myCategories = [];
     String name;
     Categories category;
-    await FirebaseFirestore.instance.collection("categories").get().then((value){
+    await FirebaseFirestore.instance
+        .collection("categories")
+        .get()
+        .then((value) {
       value.docs.forEach((element) {
         category = Categories();
         category = category.toObject(element.data());
@@ -42,5 +45,4 @@ class Categories {
     });
     return myCategories;
   }
-
 }

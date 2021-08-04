@@ -15,7 +15,7 @@ class BottomNavBar extends StatefulWidget {
 
 class _AdminHomeState extends State<BottomNavBar> {
   int selected;
-  List<Object> screens = new List<Object>();
+  List<Object> screens = [];
   String email = FirebaseAuth.instance.currentUser.email;
   @override
   void initState() {
@@ -57,60 +57,79 @@ class _AdminHomeState extends State<BottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        Widget widget;
-        if (snapshot.hasData) {
-          widget = Scaffold(
-            appBar: AppBar(
-              title: Text(getPageTitle()),
-              backgroundColor: Colors.black,
-              centerTitle: true,
-            ),
-            drawer: Theme(
-              data: Theme.of(context).copyWith(canvasColor: Colors.black),
-              child: Drawer(
-                child: ListView(
-                  children: [
-                    DrawerHeader(
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage("assets/images/header.jpeg"),
-                              fit: BoxFit.cover)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              width: 70,
-                              height: 70,
-                              child: FutureBuilder(
-                                builder: (context, snapshot) {
-                                  Widget widget;
-                                  if (snapshot.hasData) {
-                                    widget = CircleAvatar(
-                                        backgroundImage:
-                                            NetworkImage(snapshot.data));
-                                  } else {
-                                    widget = CircleAvatar();
-                                  }
-                                  return widget;
-                                },
-                                future: getImageProfile(),
-                              )),
-                          Text(snapshot.data.fullName),
-                          Text(snapshot.data.email),
-                        ],
+    return SafeArea(
+      child: FutureBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = Scaffold(
+              appBar: AppBar(
+                title: Text(getPageTitle()),
+                backgroundColor: Colors.black,
+                centerTitle: true,
+              ),
+              drawer: Theme(
+                data: Theme.of(context).copyWith(canvasColor: Colors.black),
+                child: Drawer(
+                  child: ListView(
+                    children: [
+                      DrawerHeader(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("assets/images/header.jpeg"),
+                                fit: BoxFit.cover)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                                width: 70,
+                                height: 70,
+                                child: FutureBuilder(
+                                  builder: (context, snapshot) {
+                                    Widget widget;
+                                    if (snapshot.hasData) {
+                                      widget = CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(snapshot.data));
+                                    } else {
+                                      widget = CircleAvatar();
+                                    }
+                                    return widget;
+                                  },
+                                  future: getImageProfile(),
+                                )),
+                            Text(snapshot.data.fullName),
+                            Text(snapshot.data.email),
+                          ],
+                        ),
                       ),
-                    ),
-                    ListTile(
+                      ListTile(
+                          leading: SvgPicture.asset(
+                            "assets/images/category_icon.svg",
+                            width: 29,
+                            height: 29,
+                          ),
+                          title: Text(
+                            "Categories",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                fontFamily: "Lobster"),
+                          ),
+                          onTap: () {
+                            Navigator.of(context)
+                                .pushNamed("/adminhome", arguments: 0);
+                          }),
+                      ListTile(
                         leading: SvgPicture.asset(
-                          "assets/images/category_icon.svg",
-                          width: 29,
-                          height: 29,
+                          "assets/images/product_icon.svg",
+                          width: 36,
+                          height: 36,
                         ),
                         title: Text(
-                          "Categories",
+                          "Products",
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -119,180 +138,163 @@ class _AdminHomeState extends State<BottomNavBar> {
                         ),
                         onTap: () {
                           Navigator.of(context)
-                              .pushNamed("/adminhome", arguments: 0);
-                        }),
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        "assets/images/product_icon.svg",
-                        width: 36,
-                        height: 36,
+                              .pushNamed("/adminhome", arguments: 1);
+                        },
                       ),
-                      title: Text(
-                        "Products",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "Lobster"),
+                      ListTile(
+                        leading: SvgPicture.asset(
+                          "assets/images/users_icon.svg",
+                          width: 36,
+                          height: 36,
+                        ),
+                        title: Text(
+                          "Users",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              fontFamily: "Lobster"),
+                        ),
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed("/adminhome", arguments: 2);
+                        },
                       ),
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed("/adminhome", arguments: 1);
-                      },
-                    ),
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        "assets/images/users_icon.svg",
-                        width: 36,
-                        height: 36,
+                      ListTile(
+                        leading: SvgPicture.asset(
+                          "assets/images/profile_icon.svg",
+                          width: 36,
+                          height: 36,
+                        ),
+                        title: Text(
+                          "Profile",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              fontFamily: "Lobster"),
+                        ),
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed("/adminhome", arguments: 3);
+                        },
                       ),
-                      title: Text(
-                        "Users",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "Lobster"),
+                      ListTile(
+                        leading: Image.asset(
+                          "assets/images/admin_icon.png",
+                          width: 36,
+                          height: 36,
+                        ),
+                        title: Text(
+                          "Admins",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Lobster",
+                              fontSize: 18),
+                        ),
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed("/alladmins", arguments: "isAdmin");
+                        },
                       ),
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed("/adminhome", arguments: 2);
-                      },
-                    ),
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        "assets/images/profile_icon.svg",
-                        width: 36,
-                        height: 36,
-                      ),
-                      title: Text(
-                        "Profile",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "Lobster"),
-                      ),
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed("/adminhome", arguments: 3);
-                      },
-                    ),
-                    ListTile(
-                      leading: Image.asset(
-                        "assets/images/admin_icon.png",
-                        width: 36,
-                        height: 36,
-                      ),
-                      title: Text(
-                        "Admins",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Lobster",
-                            fontSize: 18),
-                      ),
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed("/alladmins", arguments: "isAdmin");
-                      },
-                    ),
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        "assets/images/logout_icon.svg",
-                        width: 36,
-                        height: 36,
-                      ),
-                      title: Text(
-                        "Logout",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "Lobster"),
-                      ),
-                      onTap: () {
-                        var alertdialog = AlertDialog(
-                            title: Text("Message"),
-                            content: Text("do you want logout "),
-                            actions: [
-                              FlatButton(
-                                child: Text("Cancel"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              FlatButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Person person = Person();
-                                  person.logout().then((value) {
-                                    if (value == true) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context, "/login", (r) => false);
-                                    }
-                                  });
-                                },
-                              )
-                            ]);
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return alertdialog;
-                          },
-                        );
-                      },
-                    )
-                  ],
+                      ListTile(
+                        leading: SvgPicture.asset(
+                          "assets/images/logout_icon.svg",
+                          width: 36,
+                          height: 36,
+                        ),
+                        title: Text(
+                          "Logout",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              fontFamily: "Lobster"),
+                        ),
+                        onTap: () {
+                          var alertdialog = AlertDialog(
+                              title: Text("Message"),
+                              content: Text("do you want logout "),
+                              actions: [
+                                FlatButton(
+                                  child: Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: Text("OK"),
+                                  onPressed: () {
+                                    Person person = Person();
+                                    person.logout().then((value) {
+                                      if (value == true) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context, "/login", (r) => false);
+                                      }
+                                    });
+                                  },
+                                )
+                              ]);
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return alertdialog;
+                            },
+                          );
+                        },
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: selected,
-              onTap: (value) {
-                setState(() {
-                  selected = value;
-                });
-              },
-              type: BottomNavigationBarType.fixed,
+              bottomNavigationBar: BottomNavigationBar(
+                currentIndex: selected,
+                onTap: (value) {
+                  setState(() {
+                    selected = value;
+                  });
+                },
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: Colors.black,
+                unselectedItemColor: Colors.white,
+                selectedFontSize: 17,
+                unselectedFontSize: 12,
+                selectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
+                selectedItemColor: Colors.red,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.category),
+                    label: "Categories",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.adjust),
+                    label: "Products",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: "Users",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.move_to_inbox),
+                    label: "Profile",
+                  ),
+                ],
+              ),
+              body: toScreen(),
+            );
+          } else {
+            widget = Scaffold(
               backgroundColor: Colors.black,
-              unselectedItemColor: Colors.white,
-              selectedFontSize: 17,
-              unselectedFontSize: 12,
-              selectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
-              selectedItemColor: Colors.red,
-              items: [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.category),
-                  label: "Categories",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.adjust),
-                  label: "Products",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: "Users",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.move_to_inbox),
-                  label: "Profile",
-                ),
-              ],
-            ),
-            body: toScreen(),
-          );
-        } else {
-          widget = Scaffold(
-            backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        return widget;
-      },
-      future: getCurrentUser(),
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          return widget;
+        },
+        future: getCurrentUser(),
+      ),
     );
   }
 

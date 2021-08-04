@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_market/screens/admin/all_admins.dart';
 import 'package:tele_market/screens/admin/all_clients.dart';
@@ -14,15 +16,19 @@ import 'package:tele_market/screens/client/bottom_nav_bar2.dart';
 import 'package:tele_market/screens/client/cart.dart';
 import 'package:tele_market/screens/client/home_page.dart';
 import 'package:tele_market/screens/client/products_by_category.dart';
+import 'package:tele_market/screens/client/search_screen.dart';
 import 'package:tele_market/screens/ui/crop_image_profile.dart';
 import 'package:tele_market/screens/ui/login.dart';
 import 'package:tele_market/screens/ui/profile.dart';
 import 'package:tele_market/screens/ui/registration.dart';
 import 'package:tele_market/screens/ui/splash_screen.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(
+      DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   @override
@@ -30,6 +36,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Tele Market Application",
       debugShowCheckedModeBanner: false,
+      locale: DevicePreview.locale(context), // Add the locale here
+      builder: DevicePreview.appBuilder,
       routes: {
         "/login": (context) => Login(),
         "/registration": (context) => Registeration(),
@@ -39,6 +47,7 @@ class MyApp extends StatelessWidget {
         //Admin Screens
         "/adminhome": (context) => BottomNavBar(),
         "/alladmins": (context) => AllAdmins(),
+
         //Category
         "/allcategories": (context) => AllCategories(),
         "/addcategory": (context) => AddCategory(),
@@ -50,13 +59,14 @@ class MyApp extends StatelessWidget {
         "/previewproduct": (context) => PreviewProduct(),
         "/updateproduct": (context) => UpdateProduct(),
 
-        "/allclients": (context) => AllClients(),
         //User Screens
         "/bottomnavbarclient": (context) => BottomNavBarClient(),
         "/userhome": (context) => Homepage(),
         "/productsbycategory": (context) => ProductsByCategory(),
         "/allcategoriesclient": (context) => AllCategoriesClient(),
         "/cart": (context) => Cart(),
+        "/allclients": (context) => AllClients(),
+        "/search_screen": (context) => SearchScreen(),
       },
       home: SplashScreen(),
     );
