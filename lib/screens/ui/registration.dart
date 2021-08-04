@@ -141,8 +141,9 @@ class _RegistrationState extends State<Registeration> {
                           width: 170,
                           margin: EdgeInsets.only(
                               top: 10, bottom: 10, right: 15, left: 15),
-                          child: RaisedButton(
+                          child: ElevatedButton(
                             onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
                               if (formKey.currentState.validate()) {
                                 setState(() {
                                   test = true;
@@ -174,8 +175,16 @@ class _RegistrationState extends State<Registeration> {
                                 });
                               }
                             },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18.0),
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                ),
+                              ),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.red[400],
+                              ),
                             ),
                             child: userType == null
                                 ? Text(
@@ -188,7 +197,6 @@ class _RegistrationState extends State<Registeration> {
                                     style: TextStyle(
                                         fontSize: 28, fontFamily: "Ranga"),
                                   ),
-                            color: Colors.red[400],
                           ),
                         ),
                         test == true
@@ -239,7 +247,7 @@ class _RegistrationState extends State<Registeration> {
       content: Text(text),
       duration: Duration(seconds: 2),
     );
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget textField(

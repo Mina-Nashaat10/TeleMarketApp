@@ -11,7 +11,7 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   PickedFile selectedImage;
-  List<String> myCategories = List<String>();
+  List<String> myCategories = [];
   String selectCategory;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -124,41 +124,50 @@ class _AddProductState extends State<AddProduct> {
                     Container(
                         margin: EdgeInsets.only(
                             top: 10, bottom: 10, right: 70, left: 70),
-                        child: RaisedButton(
+                        child: Padding(
                           padding: EdgeInsets.only(
                               left: 40, right: 40, top: 10, bottom: 10),
-                          onPressed: () async {
-                            if (formKey.currentState.validate()) {
-                              if (selectCategory == null) {
-                                showSnackBar(
-                                    "Please Choose Category of Product");
-                              } else if (selectedImage == null) {
-                                showSnackBar("Please Choose Image Of Product");
-                              } else {
-                                setState(() {
-                                  pressAddProduct = true;
-                                });
-                                Product product = Product();
-                                product.title = titleController.text.toString();
-                                product.category = selectCategory;
-                                product.price = priceController.text;
-                                product.details =
-                                    detailController.text.toString();
-                                product.description =
-                                    descriptionController.text.toString();
-                                Admin admin = Admin();
-                                await admin.addProduct(product, selectedImage);
-                                Navigator.pushNamed(
-                                    scaffoldKey.currentContext, "/adminhome",
-                                    arguments: 2);
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (formKey.currentState.validate()) {
+                                if (selectCategory == null) {
+                                  showSnackBar(
+                                      "Please Choose Category of Product");
+                                } else if (selectedImage == null) {
+                                  showSnackBar(
+                                      "Please Choose Image Of Product");
+                                } else {
+                                  setState(() {
+                                    pressAddProduct = true;
+                                  });
+                                  Product product = Product();
+                                  product.title =
+                                      titleController.text.toString();
+                                  product.category = selectCategory;
+                                  product.price = priceController.text;
+                                  product.details =
+                                      detailController.text.toString();
+                                  product.description =
+                                      descriptionController.text.toString();
+                                  Admin admin = Admin();
+                                  await admin.addProduct(
+                                      product, selectedImage);
+                                  Navigator.pushNamed(
+                                      scaffoldKey.currentContext, "/adminhome",
+                                      arguments: 2);
+                                }
                               }
-                            }
-                          },
-                          color: Colors.blueAccent,
-                          child: Text(
-                            "Add Product",
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.w700),
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blueAccent,
+                              ),
+                            ),
+                            child: Text(
+                              "Add Product",
+                              style: TextStyle(
+                                  fontSize: 22, fontWeight: FontWeight.w700),
+                            ),
                           ),
                         ))
                   ]),
@@ -212,7 +221,7 @@ class _AddProductState extends State<AddProduct> {
   }
 
   Future<List<String>> getCategories() async {
-    List<String> cat = List<String>();
+    List<String> cat = [];
     Categories categories = Categories();
     await categories.getAllCategories().then((value) => cat = value);
     setState(() {
@@ -222,10 +231,10 @@ class _AddProductState extends State<AddProduct> {
   }
 
   void snackBar(String text) {
-    var snack = SnackBar(
+    var snackBar = SnackBar(
       content: Text(text),
     );
-    scaffoldKey.currentState.showSnackBar(snack);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -382,6 +391,6 @@ class _AddProductState extends State<AddProduct> {
     var snackBar = SnackBar(
       content: Text(s),
     );
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

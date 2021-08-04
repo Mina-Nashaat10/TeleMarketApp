@@ -113,37 +113,44 @@ class _AddCategoryState extends State<AddCategory> {
                 Container(
                     margin: EdgeInsets.only(top: 25, right: 70, left: 70),
                     height: 50.0,
-                    child: RaisedButton(
-                      child: Text(" Add Category "),
-                      onPressed: () {
-                        if (_selectedImage == null) {
-                          snackBar("Please Choose Image of Category");
-                        } else if (categoryName.text == "") {
-                          snackBar("Please Enter Category Name");
-                        } else if (categoryDes.text == "") {
-                          snackBar("Please Enter Category Description");
-                        } else {
-                          Categories category = new Categories();
-                          category.name = categoryName.text.toString();
-                          category.description = categoryDes.text.toString();
-                          Admin admin = Admin();
-                          setState(() {
-                            pressAddCategory = true;
-                          });
-                          admin
-                              .addCategory(category, _selectedImage)
-                              .then((value) {
-                            if (value == true) {
-                              Navigator.pushNamed(context, "/adminhome",
-                                  arguments: 1);
-                            }
-                          });
-                        }
-                      },
-                      color: Color(0xff0091EA),
-                      textColor: Colors.white,
-                      splashColor: Colors.grey,
+                    child: Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: ElevatedButton(
+                        child: Text(" Add Category "),
+                        onPressed: () {
+                          if (_selectedImage == null) {
+                            snackBar("Please Choose Image of Category");
+                          } else if (categoryName.text == "") {
+                            snackBar("Please Enter Category Name");
+                          } else if (categoryDes.text == "") {
+                            snackBar("Please Enter Category Description");
+                          } else {
+                            Categories category = new Categories();
+                            category.name = categoryName.text.toString();
+                            category.description = categoryDes.text.toString();
+                            Admin admin = Admin();
+                            setState(() {
+                              pressAddCategory = true;
+                            });
+                            admin
+                                .addCategory(category, _selectedImage)
+                                .then((value) {
+                              if (value == true) {
+                                Navigator.pushNamed(context, "/adminhome",
+                                    arguments: 1);
+                              }
+                            });
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xff0091EA),
+                          ),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
                     ))
               ],
             ),
@@ -180,10 +187,10 @@ class _AddCategoryState extends State<AddCategory> {
   }
 
   void snackBar(String text) {
-    var snack = SnackBar(
+    var snackBar = SnackBar(
       content: Text(text),
     );
-    scaffoldKey.currentState.showSnackBar(snack);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget getImageWidget() {

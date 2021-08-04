@@ -10,7 +10,7 @@ class ProductsByCategory extends StatefulWidget {
 
 class _ProductsByCategoryState extends State<ProductsByCategory> {
   String category;
-  List<Product> products = List<Product>();
+  List<Product> products = [];
 
   Future<List<Product>> getProducts() async {
     category = ModalRoute.of(context).settings.arguments;

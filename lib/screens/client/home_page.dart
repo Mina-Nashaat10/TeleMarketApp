@@ -21,6 +21,7 @@ class _HomepageState extends State<Homepage> {
   Future<bool> checkInternet() async {
     isAvailable = await Internet.checkInternet();
     if (isAvailable) return true;
+    return false;
   }
 
   Future<List<String>> getProAndCate() async {

@@ -161,7 +161,7 @@ class _ProfileState extends State<Profile> {
                                               content: Text(
                                                   "You Can not change profile image..."),
                                             );
-                                            scaffoldKey.currentState
+                                            ScaffoldMessenger.of(context)
                                                 .showSnackBar(snackBar);
                                           },
                                     child: new CircleAvatar(
@@ -272,7 +272,7 @@ class _ProfileState extends State<Profile> {
                       } else if (property == "E-mail") {
                         var snackBar =
                             SnackBar(content: Text("Can not to update E-mail"));
-                        scaffoldKey.currentState.showSnackBar(snackBar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       } else if (property == "Password") {
                         oldPassController.text = "";
                         newPassController.text = "";
@@ -363,7 +363,7 @@ class _ProfileState extends State<Profile> {
             Container(
               width: 100,
               height: 40,
-              child: RaisedButton(
+              child: ElevatedButton(
                 onPressed: () {
                   if (formKey.currentState.validate()) {
                     if (property == "Name") {
@@ -393,14 +393,20 @@ class _ProfileState extends State<Profile> {
                     }
                   }
                 },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                  ),
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Colors.black,
+                  ),
                 ),
                 child: Text(
                   "update",
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
-                color: Colors.black,
               ),
             ),
           ],
@@ -612,8 +618,7 @@ class _ProfileState extends State<Profile> {
   Future saveImageToFs(String email, File cropped, String path) async {
     Reference reference = FirebaseStorage.instance.ref().child(path);
     UploadTask uploadTask = reference.putData(cropped.readAsBytesSync());
-    String url =
-        await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
+    await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
     setState(() {
       selectNewImage = false;
     });

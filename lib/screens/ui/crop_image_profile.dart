@@ -35,8 +35,7 @@ class _CropImageState extends State<CropImage> {
   Future saveImageToFs(String email, File cropped, String path) async {
     Reference reference = FirebaseStorage.instance.ref().child(path);
     UploadTask uploadTask = reference.putData(await cropped.readAsBytes());
-    String url =
-        await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
+    await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
   }
 
   Future<File> cropImage(PickedFile selected) async {
@@ -133,8 +132,7 @@ class _CropImageState extends State<CropImage> {
         .ref()
         .child("users/" + email + "/" + "user.png");
     UploadTask uploadTask = reference.putData(file);
-    String url =
-        await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
+    await (await uploadTask.whenComplete(() => null)).ref.getDownloadURL();
   }
 
   Widget getImageWidget() {

@@ -11,8 +11,8 @@ class AllProducts extends StatefulWidget {
 }
 
 class _AllProductsState extends State<AllProducts> {
-  List<String> allCategories = List<String>();
-  List<Product> allProducts = List<Product>();
+  List<String> allCategories = [];
+  List<Product> allProducts = [];
   bool isAvailable = false;
 
   Future<List<Product>> getAllProducts() async {
@@ -25,7 +25,7 @@ class _AllProductsState extends State<AllProducts> {
   }
 
   Widget getListViewWidget(String category) {
-    List<Product> categoryProducts = List<Product>();
+    List<Product> categoryProducts = [];
     allProducts.forEach((element) {
       if (element.category == category) {
         categoryProducts.add(element);
@@ -142,6 +142,7 @@ class _AllProductsState extends State<AllProducts> {
       }
     });
     if (isAvailable) return true;
+    return false;
   }
 
   @override

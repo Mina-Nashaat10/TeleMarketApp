@@ -1,5 +1,3 @@
-import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_market/screens/admin/all_admins.dart';
 import 'package:tele_market/screens/admin/all_clients.dart';
@@ -24,10 +22,7 @@ import 'package:tele_market/screens/ui/registration.dart';
 import 'package:tele_market/screens/ui/splash_screen.dart';
 
 void main() => runApp(
-      DevicePreview(
-        enabled: !kReleaseMode,
-        builder: (context) => MyApp(),
-      ),
+      MyApp(),
     );
 
 class MyApp extends StatelessWidget {
@@ -36,8 +31,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Tele Market Application",
       debugShowCheckedModeBanner: false,
-      locale: DevicePreview.locale(context), // Add the locale here
-      builder: DevicePreview.appBuilder,
       routes: {
         "/login": (context) => Login(),
         "/registration": (context) => Registeration(),

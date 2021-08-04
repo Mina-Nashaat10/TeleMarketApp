@@ -217,13 +217,13 @@ class _AdminHomeState extends State<BottomNavBar> {
                               title: Text("Message"),
                               content: Text("do you want logout "),
                               actions: [
-                                FlatButton(
+                                TextButton(
                                   child: Text("Cancel"),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
                                 ),
-                                FlatButton(
+                                TextButton(
                                   child: Text("OK"),
                                   onPressed: () {
                                     Person person = Person();

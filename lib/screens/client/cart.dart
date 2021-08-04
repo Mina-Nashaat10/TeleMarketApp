@@ -18,7 +18,7 @@ class Cart extends StatelessWidget {
     userId = person.id;
   }
 
-  List<MyProducts> myProducts = new List();
+  List<MyProducts> myProducts = [];
   var scaffoldKey = GlobalKey<ScaffoldState>();
   int total = 0;
   Future getMyProducts() async {
@@ -127,7 +127,7 @@ class Cart extends StatelessWidget {
                               },
                             ),
                           );
-                          scaffoldKey.currentState.showSnackBar(snackBar);
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       },
                       child: Container(
@@ -223,9 +223,10 @@ class Cart extends StatelessWidget {
                                                       snapshot, index);
                                                 } else {
                                                   var snackBar = SnackBar(
-                                                      content: Text(
-                                                          "Count of Product must large than or equal 1"));
-                                                  scaffoldKey.currentState
+                                                    content: Text(
+                                                        "Count of Product must large than or equal 1"),
+                                                  );
+                                                  ScaffoldMessenger.of(context)
                                                       .showSnackBar(snackBar);
                                                 }
                                               },
@@ -295,9 +296,9 @@ class Cart extends StatelessWidget {
                   Container(
                     width: MediaQuery.of(context).size.width / 2 - 7,
                     margin: EdgeInsets.only(left: 5, right: 5),
-                    child: RaisedButton(
+                    child: ElevatedButton(
                       onPressed: () async {
-                        List<MyProducts> products = List();
+                        List<MyProducts> products = [];
                         products.addAll(myProducts);
                         await FloorFactory.getMyProductsDb().then((value) =>
                             value.myProductsDao.deleteAllProducts(userId));
@@ -323,7 +324,7 @@ class Cart extends StatelessWidget {
                             },
                           ),
                         );
-                        scaffoldKey.currentState.showSnackBar(snackBar);
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         setState(() {
                           myProducts.clear();
                           calcTotal();
@@ -334,20 +335,28 @@ class Cart extends StatelessWidget {
                         style: TextStyle(
                             color: Colors.black87, fontWeight: FontWeight.bold),
                       ),
-                      color: HexColor("#40ff00"),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          HexColor("#40ff00"),
+                        ),
+                      ),
                     ),
                   ),
                   Container(
                     width: MediaQuery.of(context).size.width / 2 - 8,
                     margin: EdgeInsets.only(right: 5),
-                    child: RaisedButton(
+                    child: ElevatedButton(
                       onPressed: () {},
                       child: Text(
                         "Checkout",
                         style: TextStyle(
                             color: Colors.black87, fontWeight: FontWeight.bold),
                       ),
-                      color: HexColor("#40ff00"),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          HexColor("#40ff00"),
+                        ),
+                      ),
                     ),
                   )
                 ],

@@ -14,7 +14,7 @@ class UpdateProduct extends StatefulWidget {
 
 class _UpdateProductState extends State<UpdateProduct> {
   File selectedImage;
-  List<String> myCategories = List<String>();
+  List<String> myCategories = [];
   String selectCategory;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -136,43 +136,52 @@ class _UpdateProductState extends State<UpdateProduct> {
                   Container(
                       margin: EdgeInsets.only(
                           top: 10, bottom: 10, right: 70, left: 70),
-                      child: RaisedButton(
+                      child: Padding(
                         padding: EdgeInsets.only(
                             left: 40, right: 40, top: 10, bottom: 10),
-                        onPressed: () {
-                          if (formKey.currentState.validate()) {
-                            if (selectCategory == null) {
-                              showSnackBar("Please Choose Category of Product");
-                            } else {
-                              setState(() {
-                                pressAddProduct = true;
-                              });
-                              Product newProduct = Product();
-                              newProduct.id = product.id;
-                              newProduct.title = nameController.text.toString();
-                              newProduct.category = selectCategory;
-                              newProduct.description =
-                                  descriptionController.text.toString();
-                              newProduct.price = priceController.text;
-                              newProduct.details =
-                                  detailsController.text.toString();
-                              Admin admin = Admin();
-                              if (selectedImage == null) {
-                                newProduct.imagePath = product.imagePath;
-                                admin.updateProduct(newProduct);
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (formKey.currentState.validate()) {
+                              if (selectCategory == null) {
+                                showSnackBar(
+                                    "Please Choose Category of Product");
                               } else {
-                                admin.updateProduct(newProduct, selectedImage);
+                                setState(() {
+                                  pressAddProduct = true;
+                                });
+                                Product newProduct = Product();
+                                newProduct.id = product.id;
+                                newProduct.title =
+                                    nameController.text.toString();
+                                newProduct.category = selectCategory;
+                                newProduct.description =
+                                    descriptionController.text.toString();
+                                newProduct.price = priceController.text;
+                                newProduct.details =
+                                    detailsController.text.toString();
+                                Admin admin = Admin();
+                                if (selectedImage == null) {
+                                  newProduct.imagePath = product.imagePath;
+                                  admin.updateProduct(newProduct);
+                                } else {
+                                  admin.updateProduct(
+                                      newProduct, selectedImage);
+                                }
+                                Navigator.pushNamed(context, "/adminhome",
+                                    arguments: 2);
                               }
-                              Navigator.pushNamed(context, "/adminhome",
-                                  arguments: 2);
                             }
-                          }
-                        },
-                        color: Colors.blueAccent,
-                        child: Text(
-                          "update Product",
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w700),
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.blueAccent,
+                            ),
+                          ),
+                          child: Text(
+                            "update Product",
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ))
                 ]),
@@ -240,7 +249,7 @@ class _UpdateProductState extends State<UpdateProduct> {
   }
 
   Future<List<String>> getCategories() async {
-    List<String> cat = List<String>();
+    List<String> cat = [];
     Categories categories = Categories();
     await categories.getAllCategories().then((value) => cat = value);
     setState(() {
@@ -253,7 +262,7 @@ class _UpdateProductState extends State<UpdateProduct> {
     var snackBar = SnackBar(
       content: Text(s),
     );
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget getImageWidget() {

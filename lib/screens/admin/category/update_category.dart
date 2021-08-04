@@ -89,44 +89,51 @@ class _UpdateCategoryState extends State<UpdateCategory> {
                 Container(
                     margin: EdgeInsets.only(top: 25, right: 70, left: 70),
                     height: 50.0,
-                    child: RaisedButton(
-                      child: Text(" Update Category "),
-                      onPressed: () {
-                        if (categoryName.text == "") {
-                          showSnackBar("Please Enter Category Name");
-                        } else if (categoryDes.text == "") {
-                          showSnackBar("Please Enter Category Description");
-                        } else {
-                          Categories category = new Categories();
-                          category.name = categoryName.text.toString();
-                          category.description = categoryDes.text.toString();
-                          Admin admin = Admin();
-                          setState(() {
-                            pressAddCategory = true;
-                          });
-                          if (_selectedImage != null) {
-                            admin
-                                .updateCategory(category, _selectedImage)
-                                .then((value) {
-                              if (value == true) {
-                                Navigator.pushNamed(context, "/adminhome",
-                                    arguments: 1);
-                              }
-                            });
-                          } else {
-                            admin.updateCategory(category).then((value) {
-                              if (value == true) {
-                                Navigator.pushNamed(context, "/adminhome",
-                                    arguments: 1);
-                              }
-                            });
-                          }
-                        }
-                      },
-                      color: Color(0xff0091EA),
-                      textColor: Colors.white,
-                      splashColor: Colors.grey,
+                    child: Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: ElevatedButton(
+                        child: Text(" Update Category "),
+                        onPressed: () {
+                          if (categoryName.text == "") {
+                            showSnackBar("Please Enter Category Name");
+                          } else if (categoryDes.text == "") {
+                            showSnackBar("Please Enter Category Description");
+                          } else {
+                            Categories category = new Categories();
+                            category.name = categoryName.text.toString();
+                            category.description = categoryDes.text.toString();
+                            Admin admin = Admin();
+                            setState(() {
+                              pressAddCategory = true;
+                            });
+                            if (_selectedImage != null) {
+                              admin
+                                  .updateCategory(category, _selectedImage)
+                                  .then((value) {
+                                if (value == true) {
+                                  Navigator.pushNamed(context, "/adminhome",
+                                      arguments: 1);
+                                }
+                              });
+                            } else {
+                              admin.updateCategory(category).then((value) {
+                                if (value == true) {
+                                  Navigator.pushNamed(context, "/adminhome",
+                                      arguments: 1);
+                                }
+                              });
+                            }
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xff0091EA),
+                          ),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
                     ))
               ],
             ),
@@ -163,10 +170,10 @@ class _UpdateCategoryState extends State<UpdateCategory> {
   }
 
   void showSnackBar(String text) {
-    var snack = SnackBar(
+    var snackBar = SnackBar(
       content: Text(text),
     );
-    scaffoldKey.currentState.showSnackBar(snack);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> _pickImage(ImageSource source) async {

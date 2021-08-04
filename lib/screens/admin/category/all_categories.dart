@@ -12,14 +12,14 @@ class AllCategories extends StatefulWidget {
 }
 
 class _AllCategoriesState extends State<AllCategories> {
-  List<Categories> allCategories = List<Categories>();
+  List<Categories> allCategories = [];
   bool isAvailable = false;
 
   String selectChoice;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<List<Categories>> getCategories() async {
-    List<Categories> cat = List<Categories>();
+    List<Categories> cat = [];
     Categories category = new Categories();
     await FirebaseFirestore.instance
         .collection("categories")
@@ -40,6 +40,7 @@ class _AllCategoriesState extends State<AllCategories> {
   Future<bool> checkInternet() async {
     isAvailable = await Internet.checkInternet();
     if (isAvailable) return true;
+    return false;
   }
 
   @override
@@ -233,14 +234,14 @@ class _AllCategoriesState extends State<AllCategories> {
                                         content: Text(
                                             "do you want to delete this category "),
                                         actions: [
-                                          FlatButton(
+                                          TextButton(
                                             child: Text("Cancel"),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                               Navigator.of(context).pop();
                                             },
                                           ),
-                                          FlatButton(
+                                          TextButton(
                                             child: Text("OK"),
                                             onPressed: () {
                                               Navigator.of(context).pop();
@@ -286,9 +287,9 @@ class _AllCategoriesState extends State<AllCategories> {
   }
 
   void showSnackBar(String text) {
-    var snack = SnackBar(
+    var snackBar = SnackBar(
       content: Text(text),
     );
-    scaffoldKey.currentState.showSnackBar(snack);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

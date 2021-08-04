@@ -110,7 +110,7 @@ class _PreviewProductState extends State<PreviewProduct> {
                                             "Do you want to delete this item ?",
                                             style: TextStyle(fontSize: 18)),
                                         actions: [
-                                          FlatButton(
+                                          TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
@@ -120,7 +120,7 @@ class _PreviewProductState extends State<PreviewProduct> {
                                                       fontSize: 18,
                                                       fontWeight:
                                                           FontWeight.w700))),
-                                          FlatButton(
+                                          TextButton(
                                               onPressed: () {
                                                 Admin admin = Admin();
                                                 admin.deleteProduct(product.id);
@@ -218,7 +218,8 @@ class _PreviewProductState extends State<PreviewProduct> {
                                             var snackBar = SnackBar(
                                                 content: Text(
                                                     "Count of Product must large than or equal 1"));
-                                            scaffoldKey.currentState
+
+                                            ScaffoldMessenger.of(context)
                                                 .showSnackBar(snackBar);
                                           }
                                         },
@@ -289,8 +290,13 @@ class _PreviewProductState extends State<PreviewProduct> {
                         ? Container(
                             margin: EdgeInsets.all(10),
                             width: double.infinity,
-                            child: RaisedButton(
-                              color: HexColor("#40ff00"),
+                            child: ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                  HexColor("#40ff00"),
+                                ),
+                              ),
                               onPressed: () async {
                                 MyProducts myProduct = await getProduct();
                                 if (myProduct == null) {
