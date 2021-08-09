@@ -1,14 +1,19 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:tele_market/floor/floor_factory.dart';
 import 'package:tele_market/floor/myproducts.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/admin.dart';
 import 'package:tele_market/models/person.dart';
 import 'package:tele_market/models/product.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class PreviewProduct extends StatefulWidget {
   @override
@@ -19,6 +24,53 @@ class _PreviewProductState extends State<PreviewProduct> {
   Product product;
   String userType;
   Person person;
+  var scaffoldKey = GlobalKey<ScaffoldState>();
+  var mediaQueryData;
+  double screenWidth;
+  List<dynamic> args;
+  int currentCount = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    args = ModalRoute.of(context).settings.arguments;
+    product = args[0];
+    mediaQueryData = MediaQuery.of(context).size;
+    screenWidth = mediaQueryData.width;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            widget = myWidget();
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
 
   Future<String> getUserType() async {
     String email = FirebaseAuth.instance.currentUser.email;
@@ -28,14 +80,7 @@ class _PreviewProductState extends State<PreviewProduct> {
     return userType;
   }
 
-  int currentCount = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    product = ModalRoute.of(context).settings.arguments;
-    var mediaQueryData = MediaQuery.of(context).size;
-    double screenWidth = mediaQueryData.width;
-    var scaffoldKey = GlobalKey<ScaffoldState>();
+  Widget myWidget() {
     return SafeArea(
       child: FutureBuilder(
         builder: (context, snapshot) {
@@ -78,7 +123,7 @@ class _PreviewProductState extends State<PreviewProduct> {
                                     onPressed: () {
                                       Navigator.pushNamed(
                                           context, "/updateproduct",
-                                          arguments: product);
+                                          arguments: [product, args[1]]);
                                     },
                                     icon: Icon(Icons.update),
                                     disabledColor: Colors.white,
@@ -121,20 +166,40 @@ class _PreviewProductState extends State<PreviewProduct> {
                                                       fontWeight:
                                                           FontWeight.w700))),
                                           TextButton(
-                                              onPressed: () {
-                                                Admin admin = Admin();
-                                                admin.deleteProduct(product.id);
-                                                Navigator.pop(context);
-                                                Navigator.pushNamed(
-                                                    context, "/adminhome",
-                                                    arguments: 2);
-                                              },
-                                              child: Text("Ok",
-                                                  style: TextStyle(
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w700))),
+                                            onPressed: () async {
+                                              Admin admin = Admin();
+                                              await admin
+                                                  .deleteProduct(product.id)
+                                                  .then((value) {
+                                                var snackBar;
+                                                if (value == true) {
+                                                  snackBar = SnackBar(
+                                                    content: Text(
+                                                        "Product Deleted..."),
+                                                  );
+                                                } else {
+                                                  snackBar = SnackBar(
+                                                    content: Text(
+                                                        "Product can not Deleted..."),
+                                                  );
+                                                }
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(snackBar);
+                                              });
+                                              Navigator.of(context)
+                                                  .pushNamedAndRemoveUntil(
+                                                      '/adminhome',
+                                                      (route) => false,
+                                                      arguments: args[1]);
+                                            },
+                                            child: Text(
+                                              "Ok",
+                                              style: TextStyle(
+                                                  color: Colors.blueAccent,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                          ),
                                         ],
                                       );
                                       showDialog(
@@ -358,6 +423,18 @@ class _PreviewProductState extends State<PreviewProduct> {
         .then((value) => value.myProductsDao.getProductById(product.id));
     return myProduct;
   }
+
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
+
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
 }
 
 /*

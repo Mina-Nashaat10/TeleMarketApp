@@ -1,7 +1,13 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/person.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class Registeration extends StatefulWidget {
   @override
@@ -25,6 +31,19 @@ class _RegistrationState extends State<Registeration> {
   String userType;
 
   @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     userType = ModalRoute.of(context).settings.arguments;
@@ -32,213 +51,233 @@ class _RegistrationState extends State<Registeration> {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            widget = myWidget();
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
+
+  Widget myWidget() {
     return SafeArea(
       child: Scaffold(
-          key: scaffoldKey,
-          backgroundColor: Colors.lightBlue[300],
-          body: Container(
-              margin: EdgeInsets.all(10),
-              child: ListView(
-                children: [
-                  Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 130,
-                          height: 120,
-                          margin: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.07,
-                              bottom: 10),
-                          child: userType == null
-                              ? CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage:
-                                      AssetImage("assets/images/shop1.jpg"))
-                              : CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: AssetImage(
-                                      "assets/images/addAdmin_icon.png")),
-                        ),
-                        userType == null
-                            ? Text("Registration Form",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontFamily: "Lobster",
-                                  fontSize: 30,
-                                ))
-                            : Text("Add Admin",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontFamily: "Lobster",
-                                  fontSize: 30,
-                                )),
-                      ],
+        key: scaffoldKey,
+        backgroundColor: Colors.lightBlue[300],
+        body: Container(
+          margin: EdgeInsets.all(10),
+          child: ListView(
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 130,
+                      height: 120,
+                      margin: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.07,
+                          bottom: 10),
+                      child: userType == null
+                          ? CircleAvatar(
+                              radius: 20,
+                              backgroundImage:
+                                  AssetImage("assets/images/shop1.jpg"))
+                          : CircleAvatar(
+                              radius: 20,
+                              backgroundImage: AssetImage(
+                                  "assets/images/addAdmin_icon.png")),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Form(
-                      key: formKey,
-                      child: Column(children: [
-                        textField(
-                            fullName,
-                            TextInputType.text,
-                            "Enter Your FullName",
-                            "FullName",
-                            Icons.person,
-                            false,
-                            "FullName is Required",
-                            _focusNode1,
-                            _focusNode2,
-                            TextCapitalization.words),
-                        textField(
-                            email,
-                            TextInputType.emailAddress,
-                            "Enter Your Email",
-                            "Email",
-                            Icons.email,
-                            false,
-                            "Email is Required",
-                            _focusNode2,
-                            _focusNode3,
-                            TextCapitalization.none),
-                        textField(
-                            pass,
-                            TextInputType.visiblePassword,
-                            "Enter Your Password",
-                            "Password",
-                            Icons.lock,
-                            true,
-                            "Password is Required",
-                            _focusNode3,
-                            _focusNode4,
-                            TextCapitalization.none),
-                        textField(
-                            phone,
-                            TextInputType.phone,
-                            "Enter Your Phone",
-                            "Phone",
-                            Icons.phone,
-                            false,
-                            "Phone is Required",
-                            _focusNode4,
-                            _focusNode5,
-                            TextCapitalization.none),
-                        textField(
-                            address,
-                            TextInputType.streetAddress,
-                            "Enter Your Address",
-                            "Address",
-                            Icons.location_city,
-                            false,
-                            "Address is Required",
-                            _focusNode5,
-                            null,
-                            TextCapitalization.words),
-                        Container(
-                          height: 50,
-                          width: 170,
-                          margin: EdgeInsets.only(
-                              top: 10, bottom: 10, right: 15, left: 15),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              if (formKey.currentState.validate()) {
-                                setState(() {
-                                  test = true;
-                                  isPressed = true;
-                                });
-                                Person p = new Person();
-                                p.fullName = fullName.text;
-                                p.email = email.text;
-                                p.password = pass.text;
-                                p.phone = int.parse(phone.text);
-                                p.address = address.text;
-                                if (userType == null)
-                                  p.userType = "client";
-                                else
-                                  p.userType = "admin";
-                                p.registration(p).then((value) {
-                                  if (value == "null") {
-                                    showSnackBar("Registration Successful");
-                                    Navigator.of(context).pop();
-                                    if (userType == null) {
-                                      Navigator.pushNamed(
-                                          context, "/profilepicture");
-                                    } else
-                                      Navigator.pushNamed(
-                                          context, "/alladmins");
-                                  } else {
-                                    showSnackBar(value);
-                                  }
-                                });
+                    userType == null
+                        ? Text("Registration Form",
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: "Lobster",
+                              fontSize: 30,
+                            ))
+                        : Text("Add Admin",
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: "Lobster",
+                              fontSize: 30,
+                            )),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Form(
+                  key: formKey,
+                  child: Column(children: [
+                    textField(
+                        fullName,
+                        TextInputType.text,
+                        "Enter Your FullName",
+                        "FullName",
+                        Icons.person,
+                        false,
+                        "FullName is Required",
+                        _focusNode1,
+                        _focusNode2,
+                        TextCapitalization.words),
+                    textField(
+                        email,
+                        TextInputType.emailAddress,
+                        "Enter Your Email",
+                        "Email",
+                        Icons.email,
+                        false,
+                        "Email is Required",
+                        _focusNode2,
+                        _focusNode3,
+                        TextCapitalization.none),
+                    textField(
+                        pass,
+                        TextInputType.visiblePassword,
+                        "Enter Your Password",
+                        "Password",
+                        Icons.lock,
+                        true,
+                        "Password is Required",
+                        _focusNode3,
+                        _focusNode4,
+                        TextCapitalization.none),
+                    textField(
+                        phone,
+                        TextInputType.phone,
+                        "Enter Your Phone",
+                        "Phone",
+                        Icons.phone,
+                        false,
+                        "Phone is Required",
+                        _focusNode4,
+                        _focusNode5,
+                        TextCapitalization.none),
+                    textField(
+                        address,
+                        TextInputType.streetAddress,
+                        "Enter Your Address",
+                        "Address",
+                        Icons.location_city,
+                        false,
+                        "Address is Required",
+                        _focusNode5,
+                        null,
+                        TextCapitalization.words),
+                    Container(
+                      height: 50,
+                      width: 170,
+                      margin: EdgeInsets.only(
+                          top: 10, bottom: 10, right: 15, left: 15),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          if (formKey.currentState.validate()) {
+                            setState(() {
+                              test = true;
+                              isPressed = true;
+                            });
+                            Person p = new Person();
+                            p.fullName = fullName.text;
+                            p.email = email.text;
+                            p.password = pass.text;
+                            p.phone = int.parse(phone.text);
+                            p.address = address.text;
+                            if (userType == null)
+                              p.userType = "client";
+                            else
+                              p.userType = "admin";
+                            p.registration(p).then((value) {
+                              if (value == "null") {
+                                showSnackBar("Registration Successful");
+                                Navigator.of(context).pop();
+                                if (userType == null) {
+                                  Navigator.pushNamed(
+                                      context, "/profilepicture");
+                                } else
+                                  Navigator.pushNamed(context, "/alladmins");
+                              } else {
+                                showSnackBar(value);
                               }
-                            },
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18.0),
-                                ),
-                              ),
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.red[400],
-                              ),
+                            });
+                          }
+                        },
+                        style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
                             ),
-                            child: userType == null
-                                ? Text(
-                                    "Sign Up",
-                                    style: TextStyle(
-                                        fontSize: 28, fontFamily: "Ranga"),
-                                  )
-                                : Text(
-                                    "Add Admin",
-                                    style: TextStyle(
-                                        fontSize: 28, fontFamily: "Ranga"),
-                                  ),
+                          ),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.red[400],
                           ),
                         ),
-                        test == true
-                            ? CircularProgressIndicator(
-                                backgroundColor: Colors.black,
+                        child: userType == null
+                            ? Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                    fontSize: 28, fontFamily: "Ranga"),
                               )
-                            : Container(),
-                        userType == null
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    bottom: 25, left: 5, right: 5),
-                                child: Row(children: [
-                                  Container(
-                                    margin: EdgeInsets.only(top: 20, left: 15),
-                                    child: Text(
-                                      "Do You have account ? ",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.greenAccent[900]),
-                                    ),
+                            : Text(
+                                "Add Admin",
+                                style: TextStyle(
+                                    fontSize: 28, fontFamily: "Ranga"),
+                              ),
+                      ),
+                    ),
+                    test == true
+                        ? CircularProgressIndicator(
+                            backgroundColor: Colors.black,
+                          )
+                        : Container(),
+                    userType == null
+                        ? Container(
+                            margin:
+                                EdgeInsets.only(bottom: 25, left: 5, right: 5),
+                            child: Row(children: [
+                              Container(
+                                margin: EdgeInsets.only(top: 20, left: 15),
+                                child: Text(
+                                  "Do You have account ? ",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.greenAccent[900]),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 20, left: 5),
+                                child: GestureDetector(
+                                  child: Text(
+                                    "Sign In",
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.amber[900],
+                                        fontWeight: FontWeight.w700),
                                   ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 20, left: 5),
-                                    child: GestureDetector(
-                                      child: Text(
-                                        "Sign In",
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            color: Colors.amber[900],
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      onTap: () {
-                                        Navigator.pushNamed(context, "/login");
-                                      },
-                                    ),
-                                  )
-                                ]),
+                                  onTap: () {
+                                    Navigator.pushNamed(context, "/login");
+                                  },
+                                ),
                               )
-                            : SizedBox(),
-                      ]))
-                ],
-              ))),
+                            ]),
+                          )
+                        : SizedBox(),
+                  ]))
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -309,4 +348,16 @@ class _RegistrationState extends State<Registeration> {
       ),
     );
   }
+
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
+
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
 }

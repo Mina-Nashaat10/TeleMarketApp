@@ -307,7 +307,7 @@ class _AdminHomeState extends State<BottomNavBar> {
       case 2:
         return new AllClients();
       case 3:
-        return new Profile();
+        return new Profile.newCons("home");
     }
     return null;
   }

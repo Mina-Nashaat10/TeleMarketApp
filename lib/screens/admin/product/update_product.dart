@@ -1,11 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/admin.dart';
 import 'package:tele_market/models/categories.dart';
 import 'package:tele_market/models/product.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class UpdateProduct extends StatefulWidget {
   @override
@@ -32,20 +37,57 @@ class _UpdateProductState extends State<UpdateProduct> {
   FocusNode descriptionNode = FocusNode();
 
   bool pressAddProduct = false;
-  Product product;
+  Product product = null;
+  List<dynamic> args;
+
+  @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    product = ModalRoute.of(context).settings.arguments;
-    nameController.text = product.title;
-    priceController.text = product.price;
-    selectCategory = product.category;
-    detailsController.text = product.details;
-    descriptionController.text = product.description;
+    if (product == null) {
+      args = ModalRoute.of(context).settings.arguments;
+      product = args[0];
+      nameController.text = product.title;
+      priceController.text = product.price;
+      selectCategory = product.category;
+      detailsController.text = product.details;
+      descriptionController.text = product.description;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            widget = myWidget();
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
+
+  Widget myWidget() {
     return SafeArea(
       child: FutureBuilder(
         builder: (context, snapshot) {
@@ -134,13 +176,13 @@ class _UpdateProductState extends State<UpdateProduct> {
                         ],
                       )),
                   Container(
-                      margin: EdgeInsets.only(
-                          top: 10, bottom: 10, right: 70, left: 70),
+                      height: 60,
+                      width: 80,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            left: 40, right: 40, top: 10, bottom: 10),
+                            left: 20, right: 20, top: 10, bottom: 10),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (formKey.currentState.validate()) {
                               if (selectCategory == null) {
                                 showSnackBar(
@@ -160,15 +202,44 @@ class _UpdateProductState extends State<UpdateProduct> {
                                 newProduct.details =
                                     detailsController.text.toString();
                                 Admin admin = Admin();
+                                var snackBar;
                                 if (selectedImage == null) {
                                   newProduct.imagePath = product.imagePath;
-                                  admin.updateProduct(newProduct);
+                                  await admin
+                                      .updateProduct(newProduct)
+                                      .then((value) {
+                                    if (value == true) {
+                                      snackBar = SnackBar(
+                                          content: Text(
+                                              "Product Updated Successfully"));
+                                    } else {
+                                      snackBar = SnackBar(
+                                          content: Text(
+                                              "Product can not Updated Successfully"));
+                                    }
+                                    scaffoldKey.currentState
+                                        .showSnackBar(snackBar);
+                                  });
                                 } else {
-                                  admin.updateProduct(
-                                      newProduct, selectedImage);
+                                  await admin
+                                      .updateProduct(newProduct, selectedImage)
+                                      .then((value) {
+                                    if (value == true) {
+                                      snackBar = SnackBar(
+                                          content: Text(
+                                              "Product Updated Successfully"));
+                                    } else {
+                                      snackBar = SnackBar(
+                                          content: Text(
+                                              "Product can not Updated Successfully"));
+                                    }
+                                    scaffoldKey.currentState
+                                        .showSnackBar(snackBar);
+                                  });
                                 }
+
                                 Navigator.pushNamed(context, "/adminhome",
-                                    arguments: 2);
+                                    arguments: args[1]);
                               }
                             }
                           },
@@ -178,7 +249,7 @@ class _UpdateProductState extends State<UpdateProduct> {
                             ),
                           ),
                           child: Text(
-                            "update Product",
+                            "Update Product",
                             style: TextStyle(
                                 fontSize: 22, fontWeight: FontWeight.w700),
                           ),
@@ -234,7 +305,9 @@ class _UpdateProductState extends State<UpdateProduct> {
             size: 30,
           ),
         ),
-        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(nextNode),
+        onFieldSubmitted: (_) => controller == descriptionController
+            ? FocusScope.of(context).unfocus()
+            : FocusScope.of(context).requestFocus(nextNode),
         keyboardType: inputType,
         obscureText: false,
         maxLines: controller == descriptionController ? 4 : 1,
@@ -252,9 +325,7 @@ class _UpdateProductState extends State<UpdateProduct> {
     List<String> cat = [];
     Categories categories = Categories();
     await categories.getAllCategories().then((value) => cat = value);
-    setState(() {
-      myCategories = cat;
-    });
+    myCategories = cat;
     return cat;
   }
 
@@ -372,4 +443,16 @@ class _UpdateProductState extends State<UpdateProduct> {
       Navigator.of(context).pop();
     }
   }
+
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
+
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
 }

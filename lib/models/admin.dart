@@ -38,8 +38,7 @@ class Admin extends Person {
   }
 
   //update personal information
-  Future<bool> updateAdmin(Person person, bool updatePassword,
-      [String oldEmail]) async {
+  Future<bool> updateAdmin(Person person, [String oldEmail]) async {
     String adminEmail = FirebaseAuth.instance.currentUser.email;
     try {
       String id;
@@ -54,10 +53,7 @@ class Admin extends Person {
           .collection("users")
           .doc(id)
           .update(person.toMap(person));
-
-      if (updatePassword == true) {
-        await FirebaseAuth.instance.currentUser.updatePassword(person.password);
-      }
+      await FirebaseAuth.instance.currentUser.updatePassword(person.password);
       return true;
     } catch (error) {
       print("Error = $error");
@@ -161,17 +157,17 @@ class Admin extends Person {
   //Delete Category
   Future<bool> deleteCategory(int id) async {
     try {
-      String id;
+      String docsId;
       await fireStore
           .collection("categories")
           .where("id", isEqualTo: id)
           .get()
           .then((value) {
         value.docs.forEach((element) {
-          id = element.id;
+          docsId = element.id;
         });
       });
-      await fireStore.collection("categories").doc(id).delete();
+      await fireStore.collection("categories").doc(docsId).delete();
       return true;
     } catch (error) {
       return false;

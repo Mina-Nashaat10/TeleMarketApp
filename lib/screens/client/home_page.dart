@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_market/floor/floor_factory.dart';
 import 'package:tele_market/floor/myproducts.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/categories.dart';
 import 'package:tele_market/models/product.dart';
-import 'package:tele_market/services/internet.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class Homepage extends StatefulWidget {
   @override
@@ -18,10 +23,120 @@ class _HomepageState extends State<Homepage> {
   List<Product> allProducts = [];
   bool isAvailable = false;
 
-  Future<bool> checkInternet() async {
-    isAvailable = await Internet.checkInternet();
-    if (isAvailable) return true;
-    return false;
+  @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            widget = myWidget();
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
+
+//01210812011
+  Widget myWidget() {
+    return SafeArea(
+      child: FutureBuilder(
+        future: getProAndCate(),
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            if (allCategories.length == 0) {
+              widget = Scaffold(
+                backgroundColor: Colors.black,
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 60,
+                      color: Colors.white,
+                    ),
+                    Text(
+                      "No Found Products",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Lobster",
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              widget = Scaffold(
+                  backgroundColor: Colors.black,
+                  body: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.3,
+                          child: Carousel(
+                              autoplay: true,
+                              dotColor: Colors.blue,
+                              borderRadius: true,
+                              boxFit: BoxFit.fill,
+                              dotIncreasedColor: Colors.red,
+                              images: [
+                                AssetImage("assets/images/shop1.jpg"),
+                                AssetImage("assets/images/shop7.jpg"),
+                                AssetImage("assets/images/shop8.jpg"),
+                                AssetImage("assets/images/shop2.jpg"),
+                                AssetImage("assets/images/shop3.png"),
+                                AssetImage("assets/images/shop10.jpg"),
+                                AssetImage("assets/images/shop4.jpg"),
+                                AssetImage("assets/images/shop11.jpg"),
+                                AssetImage("assets/images/shop5.jpg"),
+                                AssetImage("assets/images/shop6.jpg"),
+                              ]),
+                        ),
+                        //For Loop to show categories
+                        for (var category in allCategories)
+                          getProductsByCategory(category)
+                      ],
+                    ),
+                  ));
+            }
+          } else {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            );
+          }
+          return widget;
+        },
+      ),
+    );
   }
 
   Future<List<String>> getProAndCate() async {
@@ -41,24 +156,25 @@ class _HomepageState extends State<Homepage> {
       }
     });
     return productsByCategory.length == 0
-        ? SizedBox()
+        ? Container()
         : Wrap(
             children: [
               Column(
                 children: [
                   Container(
-                      alignment: Alignment.centerLeft,
-                      margin: EdgeInsets.only(bottom: 10, left: 10),
-                      child: Text(
-                        category,
-                        style: TextStyle(color: Colors.white, fontSize: 20),
-                      )),
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(bottom: 10, left: 10),
+                    child: Text(
+                      category,
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  ),
                   Container(
-                    height: 290,
+                    height: 230,
                     child: ListView.builder(
                       itemBuilder: (context, index) {
                         return Container(
-                          width: 170,
+                          width: 140,
                           color: Colors.white,
                           margin: EdgeInsets.only(
                             right: 5,
@@ -71,21 +187,24 @@ class _HomepageState extends State<Homepage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                  alignment: Alignment.center,
-                                  color: Colors.white,
-                                  width: 168,
-                                  height: 180,
-                                  child: InkWell(
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                            context, '/previewproduct',
-                                            arguments:
-                                                productsByCategory[index]);
-                                      },
-                                      child: Image.network(
-                                        productsByCategory[index].imagePath,
-                                        fit: BoxFit.fill,
-                                      ))),
+                                alignment: Alignment.center,
+                                color: Colors.white,
+                                width: 168,
+                                height: 120,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, '/previewproduct', arguments: [
+                                      productsByCategory[index],
+                                      0
+                                    ]);
+                                  },
+                                  child: Image.network(
+                                    productsByCategory[index].imagePath,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
                               Container(
                                 margin: EdgeInsets.only(left: 5, top: 2),
                                 child: Text(
@@ -93,7 +212,7 @@ class _HomepageState extends State<Homepage> {
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 20),
+                                      fontSize: 16),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -106,7 +225,7 @@ class _HomepageState extends State<Homepage> {
                                   maxLines: 1,
                                   style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w500),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -116,22 +235,16 @@ class _HomepageState extends State<Homepage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                      margin: EdgeInsets.only(
-                                          top: 5, left: 10, bottom: 5),
-                                      color: Colors.green,
-                                      child: InkWell(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                              context, '/previewproduct',
-                                              arguments:
-                                                  productsByCategory[index]);
-                                        },
-                                        child: Icon(
-                                          Icons.add,
-                                          color: Colors.white,
-                                          size: 27,
-                                        ),
-                                      )),
+                                    margin: EdgeInsets.only(left: 5, top: 5),
+                                    child: Text(
+                                      productsByCategory[index].price + " EGP",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
                                   FutureBuilder(
                                     builder: (context, snapshot) {
                                       Widget widget;
@@ -158,13 +271,23 @@ class _HomepageState extends State<Homepage> {
                                         productsByCategory[index].id),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.only(right: 5, top: 5),
-                                    child: Text(
-                                      productsByCategory[index].price + " EGP",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700),
+                                    margin: EdgeInsets.only(
+                                        top: 5, right: 10, bottom: 5),
+                                    color: Colors.green,
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, '/previewproduct',
+                                            arguments: [
+                                              productsByCategory[index],
+                                              0
+                                            ]);
+                                      },
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 23,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -175,7 +298,6 @@ class _HomepageState extends State<Homepage> {
                       },
                       itemCount: productsByCategory.length,
                       scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
                     ),
                   )
                 ],
@@ -191,84 +313,15 @@ class _HomepageState extends State<Homepage> {
     return product;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: FutureBuilder(
-        future: checkInternet(),
-        builder: (context, snapshot) {
-          Widget widget;
-          if (snapshot.hasData) {
-            widget = FutureBuilder(
-              future: getProAndCate(),
-              builder: (context, snapshot) {
-                Widget widget;
-                if (snapshot.hasData) {
-                  widget = Scaffold(
-                      backgroundColor: Colors.black,
-                      body: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              child: Carousel(
-                                  autoplay: true,
-                                  dotColor: Colors.blue,
-                                  borderRadius: true,
-                                  boxFit: BoxFit.fitWidth,
-                                  dotIncreasedColor: Colors.red,
-                                  images: [
-                                    AssetImage("assets/images/shop1.jpg"),
-                                    AssetImage("assets/images/shop7.jpg"),
-                                    AssetImage("assets/images/shop8.jpg"),
-                                    AssetImage("assets/images/shop2.jpg"),
-                                    AssetImage("assets/images/shop3.png"),
-                                    AssetImage("assets/images/shop10.jpg"),
-                                    AssetImage("assets/images/shop4.jpg"),
-                                    AssetImage("assets/images/shop11.jpg"),
-                                    AssetImage("assets/images/shop5.jpg"),
-                                    AssetImage("assets/images/shop6.jpg"),
-                                  ]),
-                            ),
-                            //For Loop to show categories
-                            for (var category in allCategories)
-                              getProductsByCategory(category)
-                          ],
-                        ),
-                      ));
-                } else {
-                  widget = Scaffold(
-                    backgroundColor: Colors.black,
-                    body: Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.black,
-                      ),
-                    ),
-                  );
-                }
-                return widget;
-              },
-            );
-          } else {
-            widget = Scaffold(
-              backgroundColor: Colors.black,
-              body: Container(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  "No Internet...",
-                  style: TextStyle(
-                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
-                ),
-              ),
-            );
-          }
-          return widget;
-        },
-      ),
-    );
-  }
-}
-/*
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
 
- */
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
+}

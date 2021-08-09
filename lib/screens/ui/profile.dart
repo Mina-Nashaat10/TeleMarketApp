@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,12 +11,18 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/admin.dart';
 import 'package:tele_market/models/person.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class Profile extends StatefulWidget {
+  String clientEmail;
+  Profile();
+  Profile.newCons(this.clientEmail);
   @override
-  _ProfileState createState() => _ProfileState();
+  _ProfileState createState() => _ProfileState(clientEmail);
 }
 
 class _ProfileState extends State<Profile> {
@@ -30,11 +38,236 @@ class _ProfileState extends State<Profile> {
   bool selectNewImage = false;
   String clientEmail;
   String email = FirebaseAuth.instance.currentUser.email;
+  _ProfileState(this.clientEmail);
+
+  @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
 
   @override
   void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    clientEmail = ModalRoute.of(context).settings.arguments;
+    if (clientEmail != "home") {
+      clientEmail = ModalRoute.of(context).settings.arguments;
+    } else
+      clientEmail = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            if (selectNewImage == true) {
+              widget = myWidget1();
+            } else {
+              widget = myWidget2();
+            }
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
+
+  Widget myWidget1() {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: CircularProgressIndicator(
+            backgroundColor: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget myWidget2() {
+    return SafeArea(
+      child: FutureBuilder(
+        future: getData(),
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              key: scaffoldKey,
+              appBar: clientEmail == null
+                  ? null
+                  : AppBar(
+                      backgroundColor: Colors.black,
+                      leading: IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+              body: Container(
+                padding: EdgeInsets.all(10),
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 20.0),
+                      child: new Stack(children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 130,
+                              height: 130,
+                              child: FutureBuilder(
+                                builder: (context, snapshot) {
+                                  Widget widget;
+                                  if (snapshot.hasData) {
+                                    widget = CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          snapshot.data,
+                                          scale: 70),
+                                    );
+                                  } else {
+                                    widget = CircularProgressIndicator();
+                                  }
+                                  return widget;
+                                },
+                                future: getImageProfile(),
+                              ),
+                            )
+                          ],
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 90.0, right: 90.0),
+                            child: new Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                InkWell(
+                                  onTap: clientEmail == null
+                                      ? () {
+                                          var alertDialog = AlertDialog(
+                                            content: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ListTile(
+                                                  leading: Icon(Icons.camera),
+                                                  title: Text("Gallery"),
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(
+                                                        ImageSource.gallery);
+                                                  },
+                                                ),
+                                                ListTile(
+                                                  leading:
+                                                      Icon(Icons.camera_alt),
+                                                  title: Text("Camera"),
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                    pickImage(
+                                                        ImageSource.camera);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => alertDialog,
+                                          );
+                                        }
+                                      : () {
+                                          var snackBar = SnackBar(
+                                            content: Text(
+                                                "You Can not change profile image..."),
+                                          );
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+                                        },
+                                  child: new CircleAvatar(
+                                    backgroundColor: Colors.red,
+                                    radius: 25.0,
+                                    child: new Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )),
+                      ]),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.only(left: 5, bottom: 10),
+                      child: Text("Personal Information",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          )),
+                    ),
+                    container("assets/images/profile_icon.svg", "Name",
+                        person.fullName),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    container(
+                        "assets/images/email_icon.svg", "E-mail", person.email),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    container("assets/images/password_icon.svg", "Password",
+                        "**********"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    container("assets/images/telephone_icon.svg", "Phone",
+                        "0" + person.phone.toString()),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    container("assets/images/map_icon.svg", "Address",
+                        person.address.toString()),
+                  ],
+                ),
+              ),
+            );
+          } else {
+            widget = Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.white,
+                ),
+              ),
+            );
+          }
+          return widget;
+        },
+      ),
+    );
   }
 
   Future<Person> getData() async {
@@ -44,192 +277,6 @@ class _ProfileState extends State<Profile> {
       person = await person.getUserInfo(clientEmail);
     }
     return person;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (selectNewImage == true) {
-      return SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          body: Center(
-            child: CircularProgressIndicator(
-              backgroundColor: Colors.white,
-            ),
-          ),
-        ),
-      );
-    } else {
-      return SafeArea(
-        child: FutureBuilder(
-          future: getData(),
-          builder: (context, snapshot) {
-            Widget widget;
-            if (snapshot.hasData) {
-              widget = Scaffold(
-                backgroundColor: Colors.black,
-                key: scaffoldKey,
-                appBar: clientEmail == null
-                    ? null
-                    : AppBar(
-                        backgroundColor: Colors.black,
-                        leading: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_rounded,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                body: Container(
-                  padding: EdgeInsets.all(10),
-                  child: ListView(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child: new Stack(children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 130,
-                                height: 130,
-                                child: FutureBuilder(
-                                  builder: (context, snapshot) {
-                                    Widget widget;
-                                    if (snapshot.hasData) {
-                                      widget = CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            snapshot.data,
-                                            scale: 70),
-                                      );
-                                    } else {
-                                      widget = CircularProgressIndicator();
-                                    }
-                                    return widget;
-                                  },
-                                  future: getImageProfile(clientEmail == null
-                                      ? email
-                                      : clientEmail),
-                                ),
-                              )
-                            ],
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(top: 90.0, right: 90.0),
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  InkWell(
-                                    onTap: clientEmail == null
-                                        ? () {
-                                            var alertDialog = AlertDialog(
-                                              content: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  ListTile(
-                                                    leading: Icon(Icons.camera),
-                                                    title: Text("Gallery"),
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(
-                                                          ImageSource.gallery);
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    leading:
-                                                        Icon(Icons.camera_alt),
-                                                    title: Text("Camera"),
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      pickImage(
-                                                          ImageSource.camera);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) => alertDialog,
-                                            );
-                                          }
-                                        : () {
-                                            var snackBar = SnackBar(
-                                              content: Text(
-                                                  "You Can not change profile image..."),
-                                            );
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(snackBar);
-                                          },
-                                    child: new CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 25.0,
-                                      child: new Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )),
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.only(left: 5, bottom: 10),
-                        child: Text("Personal Information",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                            )),
-                      ),
-                      container("assets/images/profile_icon.svg", "Name",
-                          person.fullName),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      container("assets/images/email_icon.svg", "E-mail",
-                          person.email),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      container("assets/images/password_icon.svg", "Password",
-                          "**********"),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      container("assets/images/telephone_icon.svg", "Phone",
-                          person.phone.toString()),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      container("assets/images/map_icon.svg", "Address",
-                          person.address.toString()),
-                    ],
-                  ),
-                ),
-              );
-            } else {
-              widget = Scaffold(
-                backgroundColor: Colors.black,
-                body: Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-              );
-            }
-            return widget;
-          },
-        ),
-      );
-    }
   }
 
   Widget container(String imgPath, String property, String value) {
@@ -324,6 +371,11 @@ class _ProfileState extends State<Profile> {
                 },
                 style: TextStyle(color: Colors.white),
                 controller: controller,
+                cursorColor: Colors.black,
+                keyboardType: property == "Phone"
+                    ? TextInputType.phone
+                    : TextInputType.text,
+                autofocus: true,
                 decoration: InputDecoration(
                   enabledBorder: const OutlineInputBorder(
                     borderSide:
@@ -364,32 +416,41 @@ class _ProfileState extends State<Profile> {
               width: 100,
               height: 40,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (formKey.currentState.validate()) {
                     if (property == "Name") {
                       person.fullName = controller.text.toString();
-                      admin.updateAdmin(person, false).then((value) {
-                        if (value == true) {
-                          Navigator.of(context).pop();
-                          setState(() {});
-                        }
-                      });
+                      if (person.userType == "client") {
+                        Navigator.of(context).pushReplacementNamed(
+                            '/bottomnavbarclient',
+                            arguments: 2);
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed('/adminhome', arguments: 3);
+                      }
+                      await admin.updateAdmin(person);
                     } else if (property == "Phone") {
                       person.phone = int.parse(controller.text.toString());
-                      admin.updateAdmin(person, false).then((value) {
-                        if (value == true) {
-                          Navigator.of(context).pop();
-                          setState(() {});
-                        }
-                      });
+                      if (person.userType == "client") {
+                        Navigator.of(context).pushReplacementNamed(
+                            '/bottomnavbarclient',
+                            arguments: 2);
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed('/adminhome', arguments: 3);
+                      }
+                      await admin.updateAdmin(person);
                     } else if (property == "Address") {
                       person.address = controller.text.toString();
-                      admin.updateAdmin(person, false).then((value) {
-                        if (value == true) {
-                          Navigator.of(context).pop();
-                          setState(() {});
-                        }
-                      });
+                      if (person.userType == "client") {
+                        Navigator.of(context).pushReplacementNamed(
+                            '/bottomnavbarclient',
+                            arguments: 2);
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed('/adminhome', arguments: 3);
+                      }
+                      await admin.updateAdmin(person);
                     }
                   }
                 },
@@ -404,7 +465,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 child: Text(
-                  "update",
+                  "Update",
                   style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
@@ -568,23 +629,19 @@ class _ProfileState extends State<Profile> {
                   width: 120,
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       FocusManager.instance.primaryFocus?.unfocus();
                       if (formKey.currentState.validate()) {
                         person.password = newPassController.text.toString();
-                        admin.updateAdmin(person, true).then((value) {
-                          Navigator.of(context).pop();
-                          var snackBar = SnackBar(
-                            content: Text(
-                              "Password Changed Successfully...",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        });
+                        if (person.userType == "client") {
+                          Navigator.of(context).pushReplacementNamed(
+                              '/bottomnavbarclient',
+                              arguments: 2);
+                        } else {
+                          Navigator.of(context)
+                              .pushReplacementNamed('/adminhome', arguments: 3);
+                        }
+                        await admin.updateAdmin(person);
                       }
                     },
                     child: Text(
@@ -627,23 +684,43 @@ class _ProfileState extends State<Profile> {
   Future<void> pickImage(ImageSource source) async {
     PickedFile selected = await ImagePicker.platform.pickImage(source: source);
     if (selected != null) {
-      File cropped = await ImageCropper.cropImage(
+      File cropped;
+      cropped = await ImageCropper.cropImage(
           sourcePath: selected.path,
           aspectRatio: CropAspectRatio(ratioX: 0.1, ratioY: 0.1),
           compressQuality: 100,
           maxWidth: 120,
           cropStyle: CropStyle.circle,
           maxHeight: 120);
-      this.setState(() {
-        selectedImage = cropped;
-        selectNewImage = true;
-      });
-      await saveImageToFs(email, cropped, "users/" + email + "/" + "user.png");
+      if (cropped != null) {
+        this.setState(() {
+          selectedImage = cropped;
+          selectNewImage = true;
+        });
+        await saveImageToFs(
+            email, cropped, "users/" + email + "/" + "user.png");
+      }
     }
   }
 
-  Future getImageProfile(String email) async {
-    String imageUrl = await person.getImageProfile(email);
+  Future getImageProfile() async {
+    String imageUrl;
+    if (clientEmail == null)
+      imageUrl = await person.getImageProfile(email);
+    else
+      imageUrl = await person.getImageProfile(clientEmail);
     return imageUrl;
   }
+
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
+
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
 }

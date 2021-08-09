@@ -330,7 +330,7 @@ class _BottomNavBar2State extends State<BottomNavBarClient> {
       case 1:
         return new AllCategoriesClient();
       case 2:
-        return new Profile();
+        return new Profile.newCons("home");
       case 3:
         return new Cart();
     }

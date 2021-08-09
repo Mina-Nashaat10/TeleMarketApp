@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:tele_market/helper_widgets/loading_widget.dart';
+import 'package:tele_market/helper_widgets/no_internet_widget.dart';
 import 'package:tele_market/models/categories.dart';
-import 'package:tele_market/services/internet.dart';
+import 'package:tele_market/services/internet_connection.dart';
 
 class AllCategoriesClient extends StatefulWidget {
   @override
@@ -15,6 +20,109 @@ class _AllCategoriesState extends State<AllCategoriesClient> {
   bool isAvailable = false;
   String selectChoice;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    connectivitySubscription =
+        connectivity.onConnectivityChanged.listen(updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    connectivitySubscription.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        Widget widget;
+        if (snapshot.hasData) {
+          if (snapshot.data == true) {
+            widget = myWidget();
+          } else {
+            widget = NoInternetWidget(connectionStatus);
+          }
+        } else {
+          widget = LoadingWidget();
+        }
+        return widget;
+      },
+      future: InternetConnection.internetAvailable(connectivity),
+    );
+  }
+
+  Widget myWidget() {
+    var mediaQueryData = MediaQuery.of(context);
+    double screenWidth = mediaQueryData.size.width;
+    return SafeArea(
+      child: FutureBuilder(
+        builder: (context, snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            if (allCategories.length == 0) {
+              widget = Scaffold(
+                key: scaffoldKey,
+                backgroundColor: Colors.black,
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 60,
+                      color: Colors.white,
+                    ),
+                    Text(
+                      "No Found Categories",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Lobster",
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              widget = Scaffold(
+                key: scaffoldKey,
+                backgroundColor: Colors.black,
+                body: Container(
+                    margin: EdgeInsets.all(10),
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      scrollDirection: Axis.vertical,
+                      children: List.generate(allCategories.length, (index) {
+                        return cardView(screenWidth, allCategories[index]);
+                      }),
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                    )),
+              );
+            }
+          } else {
+            widget = Scaffold(
+              key: scaffoldKey,
+              backgroundColor: Colors.black,
+              body: Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.black38,
+                ),
+              ),
+            );
+          }
+
+          return widget;
+        },
+        future: getCategories(),
+      ),
+    );
+  }
+
   Future getCategories() async {
     List<Categories> cat = [];
     Categories category = new Categories();
@@ -50,7 +158,7 @@ class _AllCategoriesState extends State<AllCategoriesClient> {
               InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed("/productsbycategory",
-                      arguments: element.name);
+                      arguments: [element.name, 1]);
                 },
                 child: Image.network(element.imgPath,
                     width: width / 2 - 20,
@@ -79,79 +187,22 @@ class _AllCategoriesState extends State<AllCategoriesClient> {
     );
   }
 
-  Future<bool> checkInternet() async {
-    isAvailable = await Internet.checkInternet();
-    if (isAvailable) return true;
-    return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var mediaQueryData = MediaQuery.of(context);
-    double screenWidth = mediaQueryData.size.width;
-    return SafeArea(
-      child: FutureBuilder(
-        future: checkInternet(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return FutureBuilder(
-              builder: (context, snapshot) {
-                Widget widget;
-                if (snapshot.hasData) {
-                  widget = Scaffold(
-                    key: scaffoldKey,
-                    backgroundColor: Colors.black,
-                    body: Container(
-                        margin: EdgeInsets.all(10),
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          scrollDirection: Axis.vertical,
-                          children:
-                              List.generate(allCategories.length, (index) {
-                            return cardView(screenWidth, allCategories[index]);
-                          }),
-                          crossAxisSpacing: 15,
-                          mainAxisSpacing: 15,
-                        )),
-                  );
-                } else {
-                  widget = Scaffold(
-                    key: scaffoldKey,
-                    backgroundColor: Colors.black,
-                    body: Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.black38,
-                      ),
-                    ),
-                  );
-                }
-                return widget;
-              },
-              future: getCategories(),
-            );
-          } else {
-            return Scaffold(
-              key: scaffoldKey,
-              backgroundColor: Colors.black,
-              body: Container(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  "No Internet...",
-                  style: TextStyle(
-                      color: Colors.red, fontSize: 25, fontFamily: "Lobster"),
-                ),
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
-
   void showSnackBar(String text) {
     var snackBar = SnackBar(
       content: Text(text),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  // Internet Area
+  ConnectivityResult connectionStatus = ConnectivityResult.none;
+  StreamSubscription<ConnectivityResult> connectivitySubscription;
+  Connectivity connectivity = Connectivity();
+
+  Future<void> updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      connectionStatus = result;
+    });
+  }
+// end
 }
