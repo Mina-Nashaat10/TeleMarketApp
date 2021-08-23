@@ -109,10 +109,13 @@ class _LoginState extends State<Login> {
                           hintText: "Enter Your Email...",
                           hintMaxLines: 1,
                           hintStyle:
-                              TextStyle(color: Colors.black87, fontSize: 17),
+                              TextStyle(color: Colors.black87, fontSize: 15),
                           labelText: "Email",
-                          labelStyle:
-                              TextStyle(color: Colors.black87, fontSize: 22),
+                          labelStyle: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                           prefixIcon: Icon(
                             Icons.email,
                             color: Colors.black87,
@@ -142,16 +145,19 @@ class _LoginState extends State<Login> {
                       child: TextFormField(
                         focusNode: passNode,
                         controller: pass,
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(fontSize: 18),
                         keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
                           hintText: "Enter Your Password...",
                           hintMaxLines: 1,
                           hintStyle:
-                              TextStyle(color: Colors.black87, fontSize: 17),
+                              TextStyle(color: Colors.black87, fontSize: 15),
                           labelText: "Password",
-                          labelStyle:
-                              TextStyle(color: Colors.black87, fontSize: 22),
+                          labelStyle: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                           prefixIcon: Icon(
                             Icons.lock,
                             color: Colors.black87,
