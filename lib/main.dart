@@ -22,9 +22,7 @@ import 'package:tele_market/screens/ui/profile.dart';
 import 'package:tele_market/screens/ui/registration.dart';
 import 'package:tele_market/screens/ui/splash_screen.dart';
 
-void main() => runApp(
-      MyApp(),
-    );
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override

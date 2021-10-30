@@ -132,10 +132,10 @@ class _CartBodyState extends State<CartBody> {
 
   void isFirstLaunch() async {
     SharedPreferences interalSharedPre = await _sharedPre;
-    bool isShow = interalSharedPre.getBool('show');
+    bool isShow = interalSharedPre.getBool('Show');
     if (isShow == null) {
       showCaseIsPreview = false;
-      await interalSharedPre.setBool('show', true);
+      await interalSharedPre.setBool('Show', true);
     }
     setState(() {});
   }
